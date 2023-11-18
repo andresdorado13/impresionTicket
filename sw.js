@@ -1,11 +1,26 @@
 const CACHE_NAME = 'ticket-printer';
 const urlsToCache = [
-  './index.html',
+  './',
+  './manifest.json',
+  'lib/BrowserPrint-3.1.250.min.js',
+  'lib/BrowserPrint-Zebra-1.1.250.min.js',
+  'lib/pdf-lib.js',
+  'lib/pdf.js',
+  'lib/pdfWorker.js',
   'css/style.css',
   'js/main.js',
+  'images/maskable_icon_x48.png',
+  'images/maskable_icon_x72.png',
+  'images/maskable_icon_x96.png',
+  'images/maskable_icon_x128.png',
+  'images/maskable_icon_x192.png',
+  'images/maskable_icon_x384.png',
   'images/maskable_icon_x512.png',
 ];
 
+/**
+ * Al instalarse el SW cacheo todos los assets del proyecto
+ */
 self.addEventListener("install", (event) => {
   const cacheStatic = caches
     .open(CACHE_NAME)
@@ -31,15 +46,38 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+/**
+ * Intercepto todos los requests que se hagan 
+ */
 self.addEventListener('fetch', (event) => {
-  if(event.request.method === 'GET'){
-    console.log("fetch get!", event.request);
+
+  /**
+   * Intercepto los gets y retorno una version cacheada del assets solicitado(si es que hay una)
+   */
+  if (event.request.method === 'GET') {
+
+    console.log("fetch get!", event.request);  
     event.respondWith(
       caches.match(event.request)
-      .then(response => response || fetch(event.request))
+      .then(cachedResponse => {
+        console.log('caches:', caches);
+        console.log('found cached response: ', cachedResponse);
+        return cachedResponse || fetch(event.request);
+      })
       .catch(console.log)
     );
-  }else if (event.request.method === 'POST' && event.request.url.includes('https://andresdorado13.github.io')){
+
+    /**
+     * Intercepto los posts, se realiza un post sobre el SW para que este pueda 
+     * recibir el pdf desde la shareSheet y luego mandarselo al cliente(la webapp 
+     * ticketPrinter)
+     * 
+     * TODO: ver como no dejar hardcodeada la URL
+     */
+  } else if (
+    event.request.method === 'POST' && 
+    event.request.url.includes('https://andresdorado13.github.io')) {
+
     console.log("fetch post!", event.request);
     event.respondWith(Response.redirect('./'));
     event.waitUntil(async function () {
@@ -57,48 +95,3 @@ self.addEventListener('fetch', (event) => {
     }());
   }
 });
-
-/*self.addEventListener('install', () => {
-  skipWaiting();
-});
-
-self.addEventListener('activate', () => {
-  clients.claim();
-});
-
-
-// Intercepta las solicitudes y responde desde la caché si está disponible
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'POST') return;
-  
-  event.respondWith(Response.redirect('./'));
-  
-  event.waitUntil(async function () {
-    const data = await event.request.formData();
-    const clientId =
-        event.resultingClientId !== ""
-          ? event.resultingClientId
-          : event.clientId;
-    console.log(clientId)
-    if (!clientId) return;
-    const client = await self.clients.get(clientId);
-    if(!client) return
-    const file = data.get('file');
-    client.postMessage({ file });
-  }());
-});*/
-
-
-
-/*addEventListener('fetch', (event) => {
-  if (event.request.method !== 'POST') return;
-  
-  event.respondWith(Response.redirect('./'));
-  
-  event.waitUntil(async function () {
-    const data = await event.request.formData();
-    const client = await self.clients.get(event.resultingClientId);
-    const file = data.get('file');
-    client.postMessage({ file });
-  }());
-});*/

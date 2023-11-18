@@ -2,10 +2,9 @@
 //pdfjsLib.GlobalWorkerOptions.workerSrc ='https://github.com/mozilla/pdfjs-dist';
 //import pdfJsLib from "https://example.com/nombreDeLaLibreria.js";
 // Loaded via <script> tag, create shortcut to access PDF.js exports.
-var pdfjsLib = window['pdfjs-dist/build/pdf'];
+var { pdfjsLib } = globalThis;
 
 // The workerSrc property shall be specified.
-
 /**
  * If you need the last version of pdf.worker.js you can get it from:
  * pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
@@ -368,12 +367,12 @@ async function combineAllPDFPages() {
   const pdfBytes = await fetch(URL.createObjectURL(fileBackup)).then((res) => res.arrayBuffer());
   const pdfDoc = await PDFLib.PDFDocument.create();
   const fileBackupPdf = await PDFLib.PDFDocument.load(pdfBytes);
-  originalPage = await pdfDoc.embedPage(fileBackupPdf.getPages()[0]);
-  preambleDims = originalPage.scale(1.0);
+  let originalPage = await pdfDoc.embedPage(fileBackupPdf.getPages()[0]);
+  let preambleDims = originalPage.scale(1.0);
   const preambleProbe = originalPage.scale(2.0);
-  totalNumPagesTam = 8.3*fileBackupPdf.getPages().length*100;
+  let totalNumPagesTam = 8.3*fileBackupPdf.getPages().length*100;
   const page = pdfDoc.addPage([preambleDims.width,preambleDims.height*fileBackupPdf.getPages().length]);
-  for(paginaActual=0 ; paginaActual<fileBackupPdf.getPages().length ; paginaActual++){
+  for(let paginaActual=0 ; paginaActual<fileBackupPdf.getPages().length ; paginaActual++){
     originalPage = await pdfDoc.embedPage(fileBackupPdf.getPages()[paginaActual]);
     preambleDims = originalPage.scale(1.0);
     page.drawPage(originalPage, {
