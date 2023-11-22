@@ -914,15 +914,47 @@ async function descargarZebraTxt() {
 async function createTxtUtf16le() {
   try {
     const txt = await createTxtFromPdf(fileBackup);
-    const encoder = new TextEncoder('utf-16le');
-    const utf16leBuffer = encoder.encode(txt);
-    const txtArchive = new Blob([utf16leBuffer], { type: 'text/plain;charset=utf-16le' });
+    const bytes = utf16le(txt);
+    const txtArchive = new Blob([bytes], { type: 'text/plain' });
     return txtArchive;
+    // const txt = await createTxtFromPdf(fileBackup);
+    // var encoder = new TextEncoder("utf-16le")
+    // var blob = new Blob(encoder.encode(txt), { type: 'text/plain;charset=utf-16le' })
+    // return blob;
+    // const txt = await createTxtFromPdf(fileBackup);
+    // const encoder = new TextEncoder('utf-16le');
+    // const utf16leBuffer = encoder.encode(txt);
+    // const txtArchive = new Blob([utf16leBuffer], { type: 'text/plain;charset=utf-16le' });
+    // return txtArchive;
   } catch (error) {
     // Manejar cualquier error que pueda ocurrir durante la creación del archivo.
     console.error('Error al crear el archivo en formato UTF-16LE:', error);
     throw error; // Puedes lanzar el error nuevamente o manejarlo de otra manera según tus necesidades.
   }
+}
+
+function utf16le(text) {
+  // Crea un array de bytes con la longitud del texto
+  const bytes = new Uint8Array(text.length * 2);
+
+  // Itera sobre el texto, codificando cada carácter en UTF-16LE
+  for (let i = 0; i < text.length; i++) {
+    // Obtiene el código del carácter
+    const code = text.charCodeAt(i);
+
+    // Escribe el carácter en el array de bytes
+    if (code < 0x10000) {
+      bytes[i * 2] = code;
+      bytes[i * 2 + 1] = 0;
+    } else {
+      // Los caracteres de 16 bits se codifican en dos bytes
+      bytes[i * 2] = (code >> 10) & 0x00FF;
+      bytes[i * 2 + 1] = (code & 0x00FF);
+    }
+  }
+
+  // Devuelve el array de bytes
+  return bytes;
 }
 
 // async function createTxtUtf16le() {
