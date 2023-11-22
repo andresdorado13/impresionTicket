@@ -897,8 +897,8 @@ async function imprimirZebraTxt() {
   //const txtArchive = await createTxtUtf16le();
   const textCreated = './UTF16.txt'
   const txtArchive = await createTxtUtf16le(fileBackup);
-  selected_device.sendFile(txtArchive, finishCallback, errorCallback);
-  //selected_device.sendFile('https://andresdorado13.github.io/impresionTicket/UTF16.txt', finishCallback, errorCallback);
+  //selected_device.sendFile(txtArchive, finishCallback, errorCallback);
+  selected_device.sendFile('https://andresdorado13.github.io/impresionTicket/fileUnifiedBackup.txt', finishCallback, errorCallback);
 }
 
 async function descargarZebraTxt() {
