@@ -672,7 +672,7 @@ function txtPurchase(textContent) {
     } else if (actualContent.toLowerCase().includes('descripción')) {
       text += '\r\n';
       text += actualContent;
-      text += '        ';
+      text += '       ';
       productAppear = true;
     } else if (actualContent.toLowerCase().includes('cant.')) {
       text += actualContent;
@@ -748,7 +748,7 @@ function txtPurchase(textContent) {
       }
     } else if(caseBuyLine) {
       caracteresLineaMax = caracteresLineaMax + actualContent.length;
-      if (caracteresLineaMax < totalPage){
+      if (caracteresLineaMax < totalPage-1){
         if (actualContent == 'SU') {
           text += actualContent + ' ';
         } else {
