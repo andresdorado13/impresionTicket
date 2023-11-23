@@ -109,7 +109,9 @@ function searchPrinters(){
 
 window.addEventListener('load', () => {
   registerServiceWorker()
-  var sPrinter = document.getElementById("printerSelect");
+  const sPrinter = document.getElementById('printerSelect');
+  const buttonPrint = document.getElementById('buttonToPrint');
+  buttonPrint.setAttribute('disabled', 'disabled');
   sPrinter.addEventListener('change', function() {
     reloadValuePrinter(sPrinter);
   });
@@ -118,6 +120,11 @@ window.addEventListener('load', () => {
     sPrinter.value = seleccionSaved;
     reloadValuePrinter(sPrinter);
   }
+  buttonPrint.addEventListener('change', function() {
+    if (buscandoDisp.textContent.includes('Dispositivos encontrados')){
+      buttonPrint.removeAttribute('disabled');
+    }
+  });
   searchPrinters()
   fileInput = document.getElementById('fileInput');
   inputFileLoad()
@@ -129,14 +136,16 @@ function reloadValuePrinter (sPrinter) {
   const textDev = document.getElementById('text_devices');
   const selectDev = document.getElementById('selected_device');
   const buscandoDisp = document.getElementById('BuscandoDisp');
+  const buttonPrint = document.getElementById('buttonToPrint');
   if (sPrinter.value === 'Zebra') {
-      textDev.style.display = 'block';
-      selectDev.style.display = 'block';
-      buscandoDisp.style.display = 'block';
+    textDev.style.display = 'block';
+    selectDev.style.display = 'block';
+    buscandoDisp.style.display = 'block';
   } else {
-      textDev.style.display = 'none';
-      selectDev.style.display = 'none';
-      buscandoDisp.style.display = 'none';
+    textDev.style.display = 'none';
+    selectDev.style.display = 'none';
+    buscandoDisp.style.display = 'none';
+    buttonPrint.removeAttribute("disabled");
   }
 }
 
