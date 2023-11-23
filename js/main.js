@@ -110,9 +110,6 @@ function searchPrinters(){
 window.addEventListener('load', () => {
   registerServiceWorker()
   var sPrinter = document.getElementById("printerSelect");
-  var buttonPrint = document.getElementById('buttonToPrint');
-  var dispSearch = document.getElementById("BuscandoDisp");
-  buttonPrint.disabled = true;
   sPrinter.addEventListener('change', function() {
     reloadValuePrinter(sPrinter);
   });
@@ -121,11 +118,6 @@ window.addEventListener('load', () => {
     sPrinter.value = seleccionSaved;
     reloadValuePrinter(sPrinter);
   }
-  dispSearch.addEventListener('change', function() {
-    if (dispSearch.textContent == 'Dispositivos encontrados') {
-      buttonPrint.disabled = false;
-    }
-  });
   searchPrinters()
   fileInput = document.getElementById('fileInput');
   inputFileLoad()
