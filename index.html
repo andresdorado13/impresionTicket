@@ -15,11 +15,11 @@
         <script type="text/javascript" src="./BrowserPrint-3.1.250.min.js"></script>
         <script type="text/javascript" src="./BrowserPrint-Zebra-1.1.250.min.js"></script>
         <script type="text/javascript" src="lib/pdf-lib.js"></script>
-        <script type="text/javascript" src="js/main.js?version=3.63"></script>
+        <script type="text/javascript" src="js/main.js?version=3.64"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     </head>
     <body>
-        V3.63<br/>
+        V3.64<br/>
         <div class="container">
             <div class="header">
                 <h1 class="title">Imprimir ticket</h1>
@@ -39,14 +39,12 @@
                 <div class="content printer">
                     <h2 class="printerTitle">Impresora</h2>
                     <select class="selectorOfPrinters" name="impresora" id="printerSelect">
-                        <option value="Zebra iMZ220">Zebra iMZ220</option>
-                        <option value="Zebra ZQ220">Zebra ZQ220</option>
+                        <option value="Zebra">Zebra</option>
                         <option value="Star">Star</option>
                     </select>
                 </div>
-                <input type="button" value="Imprimir" onclick="imprimir()">
+                <input id="buttonToPrint" type="button" value="Imprimir" onclick="imprimir()">
             </div>
-            <input type="button" value="Descargar archivo" onclick="descargarZebraTxt()">
         </div>
     </body>
 </html>

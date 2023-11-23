@@ -109,15 +109,23 @@ function searchPrinters(){
 
 window.addEventListener('load', () => {
   registerServiceWorker()
-  let sPrinter = document.getElementById("printerSelect");
+  var sPrinter = document.getElementById("printerSelect");
+  var buttonPrint = document.getElementById('buttonToPrint');
+  var dispSearch = document.getElementById("BuscandoDisp");
+  buttonPrint.disabled = true;
   sPrinter.addEventListener('change', function() {
     reloadValuePrinter(sPrinter);
   });
-  let seleccionSaved = localStorage.getItem('typePrinterSelect');
+  var seleccionSaved = localStorage.getItem('typePrinterSelect');
   if (seleccionSaved){
     sPrinter.value = seleccionSaved;
     reloadValuePrinter(sPrinter);
   }
+  dispSearch.addEventListener('change', function() {
+    if (dispSearch.textContent == 'Dispositivos encontrados') {
+      buttonPrint.disabled = false;
+    }
+  });
   searchPrinters()
   fileInput = document.getElementById('fileInput');
   inputFileLoad()
@@ -129,7 +137,7 @@ function reloadValuePrinter (sPrinter) {
   const textDev = document.getElementById('text_devices');
   const selectDev = document.getElementById('selected_device');
   const buscandoDisp = document.getElementById('BuscandoDisp');
-  if (sPrinter.value === 'Zebra iMZ220' || sPrinter.value === 'Zebra ZQ220') {
+  if (sPrinter.value === 'Zebra') {
       textDev.style.display = 'block';
       selectDev.style.display = 'block';
       buscandoDisp.style.display = 'block';
@@ -146,16 +154,9 @@ function imprimir() {
   var selectedPrinter = document.getElementById("printerSelect").value;
   // Realizar acciones según la opción seleccionada
   if (fileBackup && fileBackup.size > 0) {
-    if (selectedPrinter === "Zebra iMZ220") {
+    if (selectedPrinter === 'Zebra') {
       try{
-        alert("Imprimiendo en impresora zebra iMZ220...");
-        imprimirZebraTxt();
-      }catch(error){
-        alert("¡Falla al imprimir! Revise la impresora y el tipo de impresora al que se encuentra conectado");
-      }
-    } else if (selectedPrinter === "Zebra ZQ220") {
-      try{
-        alert("Imprimiendo en impresora zebra ZQ220...");
+        alert("Imprimiendo en impresora zebra...");
         imprimirZebraTxt();
       }catch(error){
         alert("¡Falla al imprimir! Revise la impresora y el tipo de impresora al que se encuentra conectado");
@@ -188,12 +189,6 @@ var errorCallback = function(errorMessage){
 async function imprimirZebraZpl(){
   var zpl=await pdfToZpl(fileBackupZpl);
   const zplArchive = new Blob([zpl], { type: 'text/plain' });
-  // const url = window.URL.createObjectURL(zplArchive);
-  // const a = document.createElement('a');
-  // a.href = url;
-  // a.download = "fileUnifiedBackup";
-  // a.click();   
-  // window.URL.revokeObjectURL(url);
   selected_device.sendFile(zplArchive, finishCallback, errorCallback);
 }
 
@@ -270,19 +265,6 @@ async function pdfToZpl(file) {
 /**********************************************************************/
 
 /******************FUNCIONES PARA IMPRESORA STAR***********************/
-// function createURL() {
-// 	changeHref = 'starpassprnt://v1/print/nopreview?';
-//   //back
-// 	changeHref = changeHref + "&back=" + encodeURIComponent(window.location.href);
-//   //size
-//   changeHref = changeHref + "&size=" + "2w7";
-//   //pdf
-// 	changeHref = changeHref + "&pdf=" + encodeURIComponent(pdfText);
-//   //document.getElementById("send_data").value = changeHref;
-//   console.log("****")
-//   console.log(changeHref)
-// }
-
 function createURL() {
   	changeHref = 'starpassprnt://v1/print/nopreview?';
     //back
@@ -896,7 +878,6 @@ async function createTxtFromPdf(fileBackup) {
 async function imprimirZebraTxt() {
   const txtArchive = await createTxtUtf16le(fileBackup);
   selected_device.sendFile(txtArchive, finishCallback, errorCallback);
-  //selected_device.sendFile('https://andresdorado13.github.io/impresionTicket/JOURNAL.txt', finishCallback, errorCallback);
 }
 
 async function descargarZebraTxt() {
@@ -936,36 +917,7 @@ function utf16le(text) {
   return bytes;
 }
 
-// async function createTxtUtf16le() {
-//   try {
-//     const txt = await createTxtFromPdf(fileBackup);
-//     const encoder = new TextEncoder('utf-16le');
-//     const utf16leBuffer = encoder.encode(txt);
-//     const txtArchive = new Blob([utf16leBuffer], { type: 'text/plain;charset=utf-16le' });
-//     return txtArchive;
-//   } catch (error) {
-//     console.error('Error al crear el archivo en formato UTF-16LE:', error);
-//     throw error;
-//   }
-// }
 /**********************************************************************/
-
-
-// CODIGO PARA DESCARGAR UN ARCHIVO
-// const url = window.URL.createObjectURL(fileBackup);
-// const a = document.createElement('a');
-// a.href = url;
-// a.download = "fileUnifiedBackup";
-// a.click();
-// window.URL.revokeObjectURL(url);
-
-// const url = window.URL.createObjectURL(zplArchive);
-  // const a = document.createElement('a');
-  // a.href = url;
-  // a.download = "fileUnifiedBackup";
-  // a.click();
-  // window.URL.revokeObjectURL(url);
-
 
 /***************************IMPRESORA STAR***************************/
 function htmlInventaryReport(textContent) {
@@ -1454,9 +1406,7 @@ async function getPdf(){
 async function createHtmlToDownload(){
   const txt = await createHtmlFromPdf(fileBackup);
   var encoder = new TextEncoder();
-
-// Convertir el texto a UTF-16
-var utf16Array = encoder.encode(txt);
+  var utf16Array = encoder.encode(txt);
   const txtArchive = new Blob([utf16Array], { type: 'text/plain;' });
   return txtArchive;
 }
