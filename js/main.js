@@ -2,7 +2,7 @@
 //pdfjsLib.GlobalWorkerOptions.workerSrc ='https://github.com/mozilla/pdfjs-dist';
 //import pdfJsLib from "https://example.com/nombreDeLaLibreria.js";
 // Loaded via <script> tag, create shortcut to access PDF.js exports.
-var pdfjsLib = window['pdfjs-dist/build/pdf'];
+var { pdfjsLib } = globalThis;
 
 // The workerSrc property shall be specified.
 
@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
 /**********************SERVICE WORKER******************************/
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.28')
+    navigator.serviceWorker.register('./sw.js?version=2.29')
     .then(registration => {
       //alert('Service Worker registrado con éxito:', registration);
       console.log('Service Worker registrado con éxito:', registration);
@@ -24,6 +24,18 @@ function registerServiceWorker() {
     .catch(error => {
       //alert('Error al registrar el Service Worker:', error);
       console.error('Error al registrar el Service Worker:', error);
+    });
+    //Recibe archivos compartidos fuera de la webapp
+    navigator.serviceWorker.addEventListener("message", (event) => {
+      const file = event.data.file;
+      var dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      fileInput.files = dataTransfer.files;
+      displayPdf(file);
+      combineAllPDFPages().then(archive => {
+        fileBackup=archive;
+        getPdf(createURL);
+      });
     });
   }
 }
@@ -44,6 +56,7 @@ var changeHref;
 var pdfText = "";
 var totalNumPagesTam;
 var zebraPrinter;
+var dispFound = false;
 
 /********************FUNCIONES PARA BUSCAR IMPRESORAS*******************/
 function flashText() {
@@ -65,45 +78,40 @@ function onDeviceSelected(selected){
 }
 
 function searchPrinters(){
+  const buttonPrint = document.getElementById('buttonToPrint');
   nuevoParrafo = document.getElementById("BuscandoDisp");
   nuevoParrafo.textContent = "Buscando dispositivos";
   //document.body.appendChild(nuevoParrafo);
   nIntervId = setInterval(flashText, 1000);
   //Get the default device from the application as a first step. Discovery takes longer to complete.
-  BrowserPrint.getDefaultDevice("printer", function(device){
-    //Add device to list of devices and to html select element
-    selected_device = device;
-    localStorage.setItem('lastDevice', JSON.stringify(selected_device));
-    devices.push(device);
-    var html_select = document.getElementById("selected_device");
-    var option = document.createElement("option");
-    option.text = device.name;
-    html_select.add(option);
-    //Discover any other devices available to the application
-    BrowserPrint.getLocalDevices(function(device_list){
-      for(var i = 0; i < device_list.length; i++){
-        //Add device to list of devices and to html select element
-        var device = device_list[i];
-        if(!selected_device || device.uid != selected_device.uid){
-          devices.push(device);
-          var option = document.createElement("option");
-          option.text = device.name;
-          option.value = device.uid;
-          html_select.add(option);
-        }
+  var html_select = document.getElementById("selected_device");
+  //Discover any other devices available to the application
+  BrowserPrint.getLocalDevices(function(device_list){
+    for(var i = 0; i < device_list.length; i++){
+      //Add device to list of devices and to html select element
+      var device = device_list[i];
+      if(!selected_device || device.uid != selected_device.uid){
+        devices.push(device);
+        var option = document.createElement("option");
+        option.text = device.name;
+        option.value = device.uid;
+        html_select.add(option);
       }
-      clearInterval(nIntervId);
-      nIntervId = null;
+    }
+    clearInterval(nIntervId);
+    if (device_list.length > 0) {
+      dispFound = true;
+      buttonPrint.disabled = false;
       nuevoParrafo.textContent = "Dispositivos encontrados"
-    }, function(){
-      alert("Error getting local devices")
-      clearInterval(nIntervId);
-      nIntervId = null;
-      nuevoParrafo.textContent = "Error al buscar dispositivos"
-    },"printer");
-  }, function(error){
-    //alert(error);
-  })
+    } else {
+      nuevoParrafo.textContent = "No hay dispositivos conectados"
+    }
+    nIntervId = null;
+  }, function(){
+    clearInterval(nIntervId);
+    nIntervId = null;
+    nuevoParrafo.textContent = "Error al buscar dispositivos"
+  },"printer");
 }
 /***********************************************************************/
 
@@ -111,7 +119,7 @@ window.addEventListener('load', () => {
   registerServiceWorker()
   const sPrinter = document.getElementById('printerSelect');
   const buttonPrint = document.getElementById('buttonToPrint');
-  buttonPrint.setAttribute('disabled', 'disabled');
+  buttonPrint.disabled = true;
   sPrinter.addEventListener('change', function() {
     reloadValuePrinter(sPrinter);
   });
@@ -120,11 +128,6 @@ window.addEventListener('load', () => {
     sPrinter.value = seleccionSaved;
     reloadValuePrinter(sPrinter);
   }
-  buttonPrint.addEventListener('change', function() {
-    if (buscandoDisp.textContent.includes('Dispositivos encontrados')){
-      buttonPrint.removeAttribute('disabled');
-    }
-  });
   searchPrinters()
   fileInput = document.getElementById('fileInput');
   inputFileLoad()
@@ -137,15 +140,23 @@ function reloadValuePrinter (sPrinter) {
   const selectDev = document.getElementById('selected_device');
   const buscandoDisp = document.getElementById('BuscandoDisp');
   const buttonPrint = document.getElementById('buttonToPrint');
+  const reloadButton = document.getElementById('reloadButton');
   if (sPrinter.value === 'Zebra') {
     textDev.style.display = 'block';
     selectDev.style.display = 'block';
     buscandoDisp.style.display = 'block';
+    reloadButton.style.display = 'block';
+    if (dispFound) {
+      buttonPrint.disabled = false;
+    } else {
+      buttonPrint.disabled = true;
+    }
   } else {
     textDev.style.display = 'none';
     selectDev.style.display = 'none';
     buscandoDisp.style.display = 'none';
-    buttonPrint.removeAttribute("disabled");
+    reloadButton.style.display = 'none';
+    buttonPrint.disabled = false;
   }
 }
 
@@ -178,7 +189,7 @@ function imprimir() {
 }
 /**********************************************************************/
 
-/*****************FUNCIONES PARA IMPRESORA ZEBRA iMZ220****************/
+/*********************FUNCIONES PARA IMPRESORA ZEBRA**********************/
 var finishCallback = function(){
 	alert("Proceso finalizado");	
 }
@@ -334,19 +345,6 @@ function inputFileLoad() {
   });
 }
 
-//Recibe archivos compartidos fuera de la webapp
-navigator.serviceWorker.addEventListener("message", (event) => {
-  const file = event.data.file;
-  var dataTransfer = new DataTransfer();
-  dataTransfer.items.add(file);
-  fileInput.files = dataTransfer.files;
-  displayPdf(file);
-  combineAllPDFPages().then(archive => {
-    fileBackup=archive;
-    getPdf(createURL);
-  });
-});
-
 async function combineAllPDFPages() {
   const pdfBytes = await fetch(URL.createObjectURL(fileBackup)).then((res) => res.arrayBuffer());
   const pdfDoc = await PDFLib.PDFDocument.create();
@@ -371,7 +369,7 @@ async function combineAllPDFPages() {
 }
 /**********************************************************************/
 
-/*****************FUNCIONES PARA IMPRESORA ZEBRA ZQZ220****************/
+/****************************IMPRESORA ZEBRA***************************/
 function txtInventaryReport(textContent){
   let text = '';
   if (selectedPrinter === "Zebra iMZ220") {

@@ -1,63 +1,81 @@
 body {
-    font-family: system-ui;
-    background: #ffffff;
-    color: black;
-    text-align: center;
-    margin: 0;
-    padding: 1rem;
+  font-family: system-ui;
+  background: #ffffff;
+  color: black;
+  text-align: center;
+  margin: 0;
+  padding: 1rem;
+}
+
+.reload {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0.1rem solid #000;
+  border-radius: 20%;
+  cursor: pointer;
+  background-color: #ffffff;
+  padding: 0;
+  margin-left: 1rem;
+}
+
+.reload img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.container {
+  width: 100%;
+  max-width: 60rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.header {
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
+  padding: 1rem 0;
+  font-size: 2.5rem;
+}
+
+.content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.documentTitle,
+.examTitle,
+.printerTitle,
+input[type="button"] {
+  margin-bottom: 1rem;
+}
+
+.print {
+  background-color: black;
+  color: white;
+  border: 2px solid black;
+  border-radius: 0.5rem;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 2rem;
+}
+
+@media screen and (max-width: 36rem) {
+  body {
+    padding: 0.5rem;
   }
-  
-  .container {
-    width: 100%;
-    max-width: 60rem;
-    margin: 0 auto;
-    text-align: center;
-  }
-  
-  .header {
-    text-align: center;
-  }
-  
-  h1 {
-    margin: 0;
-    padding: 1rem 0;
-    font-size: 2.5rem;
-  }
-  
-  .content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
-  
+
   .documentTitle,
   .examTitle,
   .printerTitle,
-  input[type="button"] {
-    margin-bottom: 1rem;
+  input[type="submit"] {
+    margin-bottom: 0.5rem;
   }
-  
-  input[type="button"] {
-    background-color: black;
-    color: white;
-    border: 2px solid black;
-    border-radius: 0.5rem;
-    padding: 1rem 2rem;
-    cursor: pointer;
-    font-weight: bold;
-    margin-top: 2rem;
-  }
-  
-  @media screen and (max-width: 36rem) {
-    body {
-      padding: 0.5rem;
-    }
-  
-    .documentTitle,
-    .examTitle,
-    .printerTitle,
-    input[type="submit"] {
-      margin-bottom: 0.5rem;
-    }
-  }
+}
+

@@ -1,8 +1,22 @@
 const CACHE_NAME = 'ticket-printer';
 const urlsToCache = [
+  './',
   './index.html',
+  './manifest.json',
   'css/style.css',
   'js/main.js',
+  'lib/BrowserPrint-3.1.250.min.js',
+  'lib/BrowserPrint-Zebra-1.1.250.min.js',
+  'lib/pdf-lib.js',
+  'lib/pdf.js',
+  'lib/pdfWorker.js',
+  'images/iconoRecargar.png',
+  'images/maskable_icon_x48.png',
+  'images/maskable_icon_x72.png',
+  'images/maskable_icon_x96.png',
+  'images/maskable_icon_x128.png',
+  'images/maskable_icon_x192.png',
+  'images/maskable_icon_x384.png',
   'images/maskable_icon_x512.png',
 ];
 
@@ -32,6 +46,12 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  
+  // URL en la que vive el SW
+  let scriptURL = self.serviceWorker.scriptURL;
+  // URL de la página(sin el sw al final)
+  let baseURL = scriptURL.slice(0, scriptURL.length - '/sw.js'.length);
+
   if(event.request.method === 'GET'){
     console.log("fetch get!", event.request);
     event.respondWith(
@@ -39,7 +59,7 @@ self.addEventListener('fetch', (event) => {
       .then(response => response || fetch(event.request))
       .catch(console.log)
     );
-  }else if (event.request.method === 'POST' && event.request.url.includes('https://andresdorado13.github.io')){
+  } else if (event.request.method === 'POST' && event.request.url.includes(baseURL)){
     console.log("fetch post!", event.request);
     event.respondWith(Response.redirect('./'));
     event.waitUntil(async function () {

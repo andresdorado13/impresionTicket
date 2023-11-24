@@ -10,16 +10,16 @@
         <!-- 
             You can get the last version of pdf.js from the next url:
             <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>-->
-        <script src="./lib/pdf.js"></script>
-        <script src='https://github.com/mozilla/pdfjs-dist'></script>
-        <script type="text/javascript" src="./BrowserPrint-3.1.250.min.js"></script>
-        <script type="text/javascript" src="./BrowserPrint-Zebra-1.1.250.min.js"></script>
+        <script type="text/javascript" src="lib/pdf.js"></script>
+        <!--<script type="text/javascript" src='https://github.com/mozilla/pdfjs-dist'></script>-->
+        <script type="text/javascript" src="lib/BrowserPrint-3.1.250.min.js"></script>
+        <script type="text/javascript" src="lib/BrowserPrint-Zebra-1.1.250.min.js"></script>
         <script type="text/javascript" src="lib/pdf-lib.js"></script>
-        <script type="text/javascript" src="js/main.js?version=3.66"></script>
+        <script type="text/javascript" src="js/main.js?version=3.69"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     </head>
     <body>
-        V3.66<br/>
+        V3.69<br/>
         <div class="container">
             <div class="header">
                 <h1 class="title">Imprimir ticket</h1>
@@ -28,13 +28,14 @@
                 <div style="display: flex; align-items: center; justify-content: center;">
                     <p id="text_devices">Dispositivos: </p>
                     <select id="selected_device" onchange="onDeviceSelected(this);"></select>
+                    <button id='reloadButton' class="reload" type="button" onclick="searchPrinters()"> <img src="images/iconoRecargar.png"/></button>
                 </div>
                 <p id="BuscandoDisp"></p>
             </div>
             <div class="content">
-                <div class="content print">
+                <div class="content">
                     <h2 class="examTitle">Examinar documento</h2>
-                    <input type="file" name="archivo" id="fileInput">
+                    <input type="file" class="fileLoad" name="archivo" id="fileInput">
                 </div>
                 <div class="content printer">
                     <h2 class="printerTitle">Impresora</h2>
@@ -43,7 +44,7 @@
                         <option value="Star">Star</option>
                     </select>
                 </div>
-                <input id="buttonToPrint" type="button" value="Imprimir" onclick="imprimir()">
+                <input id="buttonToPrint" class="print" type="button" value="Imprimir" onclick="imprimir()">
             </div>
         </div>
     </body>
