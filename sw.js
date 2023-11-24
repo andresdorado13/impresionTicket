@@ -48,9 +48,9 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   
   // URL en la que vive el SW
-  let scriptURL = self.serviceWorker.scriptURL;
-  // URL de la página(sin el sw al final)
-  let baseURL = scriptURL.slice(0, scriptURL.length - '/sw.js'.length);
+  let scriptURL = self.location.href;
+  // Obtener la URL base eliminando la parte específica del servicio
+  let baseURL = scriptURL.split('/').slice(0, -1).join('/');
 
   if(event.request.method === 'GET'){
     console.log("fetch get!", event.request);
