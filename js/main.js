@@ -385,7 +385,6 @@ function txtInventaryReport(textContent){
   let actualContent;
   for (let content = 0 ; content < textContent.items.length-1 ; content++) {
     actualContent = textContent.items[content].str;
-    //console.log('LOS ITEMS: ' + actualContent + ' °°°°°° ' + textContent.items[content].hasEOL + ' |||||| ' + textContent.items[content+1].hasEOL);
     if (content == finalReportNamePosition){
       text += '\r\n \r\n';
     } else if (actualContent.toLowerCase().includes('ruta:')) {
@@ -476,8 +475,6 @@ function txtRetailSales(textContent){
   let productAppear = false;
   for (let content = 0 ; content < textContent.items.length-2 ; content++) {
     actualContent = textContent.items[content].str;
-    console.log('Palabra actual: '+actualContent+' Tiene espacio: '+textContent.items[content].hasEOL );
-      debugger
     if (actualContent.toLowerCase().includes('detalle')){
       text += actualContent;
     } else if (actualContent.toLowerCase().includes('reporte')) {
@@ -622,7 +619,6 @@ function txtPurchase(textContent) {
   const spaceProductsWithProm = 13;
   for (let content = 0 ; content < textContent.items.length-1 ; content++) {
     actualContent = textContent.items[content].str;
-    console.log('LOS ITEMS: ' + actualContent);
     if (actualContent.toLowerCase().includes('ticket')){
       text += '                  ';
       text += actualContent;
@@ -948,7 +944,6 @@ function htmlInventaryReport(textContent) {
   for (let content = 0 ; content < textContent.items.length-2 ; content++) {
     actualContent = textContent.items[content].str;
     actualContentEnter = textContent.items[content].hasEOL;
-    console.log(actualContent);
     if (line == 1) {
       if (actualContentEnter){
         text += actualContent + '</p><p>&nbsp;</p></div><p style="font-size: 15px;font-weight: bold">';
@@ -1038,7 +1033,6 @@ function htmlRetailSales(textContent) {
   for (let content = 0 ; content < textContent.items.length-1 ; content++) {
     actualContent = textContent.items[content].str;
     actualContentEnter = textContent.items[content].hasEOL;
-    console.log(actualContent);
     if (line == 1) {
       if (actualContentEnter){
         text += actualContent + '</p><p>&nbsp;</p><p>';
@@ -1190,7 +1184,6 @@ function htmlPurchase(textContent) {
   for (let content = 0 ; content < textContent.items.length-1 ; content++) {
     actualContent = textContent.items[content].str;
     actualContentEnter = textContent.items[content].hasEOL;
-    console.log(actualContent);
     if (line == 1) {
       if (actualContentEnter){
         text += actualContent + '</p><p>&nbsp;</p><p>';
@@ -1273,11 +1266,9 @@ function htmlPurchase(textContent) {
         }
       } else if (codeProductRead == 3) {
         if(textContent.items[content+1].str == '$'){
-          debugger
           text += '</td><td>';
           codeProductRead = 4;
         } else{
-          debugger
           text += actualContent;
         }
       }else if (codeProductRead == 2) {
