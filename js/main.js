@@ -81,6 +81,7 @@ function searchPrinters(){
   const buttonPrint = document.getElementById('buttonToPrint');
   nuevoParrafo = document.getElementById("BuscandoDisp");
   nuevoParrafo.textContent = "Buscando dispositivos";
+  buttonPrint.value = 'Buscando';
   //document.body.appendChild(nuevoParrafo);
   nIntervId = setInterval(flashText, 1000);
   //Get the default device from the application as a first step. Discovery takes longer to complete.
@@ -102,15 +103,19 @@ function searchPrinters(){
     if (device_list.length > 0) {
       dispFound = true;
       buttonPrint.disabled = false;
+      buttonPrint.value = 'Imprimir';
+      buttonPrint.style.backgroundColor = '#000000';
       nuevoParrafo.textContent = "Dispositivos encontrados"
     } else {
       nuevoParrafo.textContent = "No hay dispositivos conectados"
+      buttonPrint.value = 'Sin dispositivos para imprimir';
     }
     nIntervId = null;
   }, function(){
     clearInterval(nIntervId);
     nIntervId = null;
     nuevoParrafo.textContent = "Error al buscar dispositivos"
+    buttonPrint.value = 'Sin dispositivos para imprimir';
   },"printer");
 }
 /***********************************************************************/
@@ -120,6 +125,8 @@ window.addEventListener('load', () => {
   const sPrinter = document.getElementById('printerSelect');
   const buttonPrint = document.getElementById('buttonToPrint');
   buttonPrint.disabled = true;
+  buttonPrint.value = 'Sin dispositivos para imprimir';
+  buttonPrint.style.backgroundColor = '#D1D1D1';
   sPrinter.addEventListener('change', function() {
     reloadValuePrinter(sPrinter);
   });
@@ -148,8 +155,12 @@ function reloadValuePrinter (sPrinter) {
     reloadButton.style.display = 'block';
     if (dispFound) {
       buttonPrint.disabled = false;
+      buttonPrint.value = 'Imprimir';
+      buttonPrint.style.backgroundColor = '#000000';
     } else {
       buttonPrint.disabled = true;
+      buttonPrint.value = 'Sin dispositivos para imprimir';
+      buttonPrint.style.backgroundColor = '#D1D1D1';
     }
   } else {
     textDev.style.display = 'none';
@@ -157,6 +168,8 @@ function reloadValuePrinter (sPrinter) {
     buscandoDisp.style.display = 'none';
     reloadButton.style.display = 'none';
     buttonPrint.disabled = false;
+    buttonPrint.value = 'Imprimir';
+    buttonPrint.style.backgroundColor = '#000000';
   }
 }
 
