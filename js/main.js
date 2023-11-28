@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
 /**********************SERVICE WORKER******************************/
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.34')
+    navigator.serviceWorker.register('./sw.js?version=2.35')
     .then(registration => {
       //alert('Service Worker registrado con éxito:', registration);
       console.log('Service Worker registrado con éxito:', registration);
@@ -54,7 +54,7 @@ let nuevoParrafo;
 let fileBackup;
 let fileBackupZpl;
 let changeHref;
-let pdfText = "";
+let pdfText = '';
 let totalNumPagesTam;
 let zebraPrinter;
 let dispFound = false;
@@ -83,7 +83,6 @@ function flashText() {
   nuevoParrafo.textContent = statusTexts[currentIndex + 1];
 }
 
-//function onDeviceSelected(selected){
 selectorDevice.addEventListener('change', function() {
 	for(let i = 0; i < devices.length; ++i){
 		if(selectorDevice.value == devices[i].uid && selectorDevice.value != 'SelectPrinter'){
@@ -102,6 +101,10 @@ reloadButton.addEventListener('click', function() {
   searchPrinters();
 });
 
+/**
+ * Busco las impresoras locales, solo aplica para las de la marca zebra, las 
+ * Star siguen otro flujo
+ */
 function searchPrinters(){
 
   // Deshabilito el boton de busqueda para que no hagan busquedas simultaneas
@@ -201,7 +204,7 @@ function reloadValuePrinter (sPrinter) {
 }
 
 /************FUNCION PARA IMPRIMIR SEGUN TIPO DE IMPRESORA*************/
-//function imprimir() {
+
 buttonPrint.addEventListener('click', function() {
   // Obtener el valor seleccionado en el elemento select
   let selectedPrinter = document.getElementById("printerSelect").value;
@@ -412,6 +415,7 @@ async function combineAllPDFPages() {
 
 /****************************IMPRESORA ZEBRA***************************/
 function txtInventaryReport(textContent){
+  let selectedPrinter = document.getElementById("printerSelect").value;
   let text = '';
   if (selectedPrinter === "Zebra iMZ220") {
     text = '! U1 JOURNAL\r\n! U1 SETLP 0 2 18\r\n! UTILITIES LT CR-X-LF PRINT\r\n           ';
