@@ -60,12 +60,14 @@ var dispFound = false;
 
 /********************FUNCIONES PARA BUSCAR IMPRESORAS*******************/
 function habilitarBoton () {
+  const buttonPrint = document.getElementById('buttonToPrint');
   buttonPrint.disabled = false;
   buttonPrint.value = 'Imprimir';
   buttonPrint.style.backgroundColor = '#000000';
 }
 
 function deshabilitarBoton () {
+  const buttonPrint = document.getElementById('buttonToPrint');
   buttonPrint.disabled = true;
   buttonPrint.value = 'Elija un dispositivo';
   buttonPrint.style.backgroundColor = '#D1D1D1';
