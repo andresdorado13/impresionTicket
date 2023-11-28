@@ -16,11 +16,10 @@
         <script type="text/javascript" src="lib/BrowserPrint-3.1.250.min.js"></script>
         <script type="text/javascript" src="lib/BrowserPrint-Zebra-1.1.250.min.js"></script>
         <script type="text/javascript" src="lib/pdf-lib.js"></script>
-        <script type="text/javascript" src="js/main.js?version=3.77"></script>
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     </head>
     <body>
-        V3.77<br/>
+        V3.78<br/>
         <div class="container">
             <div class="header">
                 <h1 class="title">Imprimir ticket</h1>
@@ -28,10 +27,10 @@
             <div class="header">
                 <div style="display: flex; align-items: center; justify-content: center;">
                     <p id="text_devices">Dispositivos: </p>
-                    <select id="selected_device" onchange="onDeviceSelected(this);">
+                    <select id="selected_device">
                         <option value="SelectPrinter">Seleccione una impresora</option>
                     </select>
-                    <button id='reloadButton' class="reload" type="button" onclick="searchPrinters()"> <img src="images/iconoRecargar.png"/></button>
+                    <button id='reloadButton' class="reload" type="button"> <img src="images/iconoRecargar.png"/></button>
                 </div>
                 <p id="BuscandoDisp"></p>
             </div>
@@ -48,8 +47,9 @@
                         <option value="Star">Star</option>
                     </select>
                 </div>
-                <input id="buttonToPrint" class="print" type="button" value="Imprimir" onclick="imprimir()">
+                <button id="buttonToPrint" class="print" type="button">Imprimir</button>
             </div>
         </div>
+        <script type="text/javascript" src="js/main.js?version=3.78"></script>
     </body>
 </html>

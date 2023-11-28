@@ -44,6 +44,7 @@ function registerServiceWorker() {
 /**************************VARIABLES GLOBALES***************************/
 let fileInput;
 let selected_device;
+let selectorDevice = document.getElementById('selected_device');
 let devices = [];
 let storedDevices;
 let nIntervId;
@@ -57,19 +58,19 @@ let pdfText = "";
 let totalNumPagesTam;
 let zebraPrinter;
 let dispFound = false;
+let buttonPrint = document.getElementById('buttonToPrint');
+let reloadButton = document.getElementById('reloadButton');
 
 /********************FUNCIONES PARA BUSCAR IMPRESORAS*******************/
 function habilitarBoton () {
-  const buttonPrint = document.getElementById('buttonToPrint');
   buttonPrint.disabled = false;
-  buttonPrint.value = 'Imprimir';
+  buttonPrint.textContent = 'Imprimir';
   buttonPrint.style.backgroundColor = '#000000';
 }
 
-function deshabilitarBoton () {
-  const buttonPrint = document.getElementById('buttonToPrint');
+function deshabilitarBoton (texto = 'Elija un dispositivo') {
   buttonPrint.disabled = true;
-  buttonPrint.value = 'Elija un dispositivo';
+  buttonPrint.textContent = texto;
   buttonPrint.style.backgroundColor = '#D1D1D1';
 }
 
@@ -82,9 +83,10 @@ function flashText() {
   nuevoParrafo.textContent = statusTexts[currentIndex + 1];
 }
 
-function onDeviceSelected(selected){
+//function onDeviceSelected(selected){
+selectorDevice.addEventListener('change', function() {
 	for(let i = 0; i < devices.length; ++i){
-		if(selected.value == devices[i].uid && selected.value != 'SelectPrinter'){
+		if(selectorDevice.value == devices[i].uid && selectorDevice.value != 'SelectPrinter'){
 			selected_device = devices[i];
       habilitarBoton();
       return;
@@ -94,17 +96,22 @@ function onDeviceSelected(selected){
       return;
     }
 	}
-}
+});
+
+reloadButton.addEventListener('click', function() {
+  searchPrinters();
+});
 
 function searchPrinters(){
-  const buttonPrint = document.getElementById('buttonToPrint');
+  const sPrinter = document.getElementById('printerSelect');
   nuevoParrafo = document.getElementById("BuscandoDisp");
   nuevoParrafo.textContent = "Buscando dispositivos";
-  buttonPrint.value = 'Buscando';
+  if (sPrinter.value != 'Star') {
+    buttonPrint.textContent = 'Buscando';
+  }
   //document.body.appendChild(nuevoParrafo);
   nIntervId = setInterval(flashText, 1000);
   //Get the default device from the application as a first step. Discovery takes longer to complete.
-  let html_select = document.getElementById("selected_device");
   //Discover any other devices available to the application
   BrowserPrint.getLocalDevices(function(device_list){
     for(let i = 0; i < device_list.length; i++){
@@ -115,24 +122,24 @@ function searchPrinters(){
         let option = document.createElement("option");
         option.text = device.name;
         option.value = device.uid;
-        html_select.add(option);
+        selectorDevice.add(option);
       }
     }
     clearInterval(nIntervId);
     if (device_list.length > 0) {
       dispFound = true;
-      buttonPrint.value = 'Elija un dispositivo';
       nuevoParrafo.textContent = "Dispositivos encontrados"
     } else {
       nuevoParrafo.textContent = "No hay dispositivos conectados"
-      buttonPrint.value = 'Sin dispositivos para imprimir';
     }
     nIntervId = null;
+    reloadValuePrinter(sPrinter);
   }, function(){
     clearInterval(nIntervId);
     nIntervId = null;
     nuevoParrafo.textContent = "Error al buscar dispositivos"
-    buttonPrint.value = 'Sin dispositivos para imprimir';
+    buttonPrint.textContent = 'Sin dispositivos para imprimir';
+    reloadValuePrinter(sPrinter);
   },"printer");
 }
 /***********************************************************************/
@@ -140,9 +147,8 @@ function searchPrinters(){
 window.addEventListener('load', () => {
   registerServiceWorker()
   const sPrinter = document.getElementById('printerSelect');
-  const buttonPrint = document.getElementById('buttonToPrint');
   buttonPrint.disabled = true;
-  buttonPrint.value = 'Sin dispositivos para imprimir';
+  buttonPrint.textContent = 'Sin dispositivos para imprimir';
   buttonPrint.style.backgroundColor = '#D1D1D1';
   sPrinter.addEventListener('change', function() {
     reloadValuePrinter(sPrinter);
@@ -163,35 +169,30 @@ function reloadValuePrinter (sPrinter) {
   const textDev = document.getElementById('text_devices');
   const selectDev = document.getElementById('selected_device');
   const buscandoDisp = document.getElementById('BuscandoDisp');
-  const buttonPrint = document.getElementById('buttonToPrint');
-  const reloadButton = document.getElementById('reloadButton');
   if (sPrinter.value === 'Zebra iMZ220' || sPrinter.value === 'Zebra ZQ220') {
     textDev.style.display = 'block';
     selectDev.style.display = 'block';
     buscandoDisp.style.display = 'block';
     reloadButton.style.display = 'block';
-    if (dispFound) {
-      buttonPrint.disabled = false;
-      buttonPrint.value = 'Imprimir';
-      buttonPrint.style.backgroundColor = '#000000';
+    if (dispFound && selected_device) {
+      habilitarBoton();
+    } else if (dispFound) {
+      deshabilitarBoton();
     } else {
-      buttonPrint.disabled = true;
-      buttonPrint.value = 'Sin dispositivos para imprimir';
-      buttonPrint.style.backgroundColor = '#D1D1D1';
+      deshabilitarBoton('Sin dispositivos para imprimir');
     }
   } else {
     textDev.style.display = 'none';
     selectDev.style.display = 'none';
     buscandoDisp.style.display = 'none';
     reloadButton.style.display = 'none';
-    buttonPrint.disabled = false;
-    buttonPrint.value = 'Imprimir';
-    buttonPrint.style.backgroundColor = '#000000';
+    habilitarBoton();
   }
 }
 
 /************FUNCION PARA IMPRIMIR SEGUN TIPO DE IMPRESORA*************/
-function imprimir() {
+//function imprimir() {
+buttonPrint.addEventListener('click', function() {
   // Obtener el valor seleccionado en el elemento select
   let selectedPrinter = document.getElementById("printerSelect").value;
   // Realizar acciones según la opción seleccionada
@@ -216,7 +217,7 @@ function imprimir() {
   } else {
     alert("No hay un archivo cargado para imprimir");
   }
-}
+});
 /**********************************************************************/
 
 /*********************FUNCIONES PARA IMPRESORA ZEBRA**********************/
