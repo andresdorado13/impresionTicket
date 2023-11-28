@@ -42,21 +42,21 @@ function registerServiceWorker() {
 /**********************************************************************/
 
 /**************************VARIABLES GLOBALES***************************/
-var fileInput;
-var selected_device;
-var devices = [];
-var storedDevices;
+let fileInput;
+let selected_device;
+let devices = [];
+let storedDevices;
 let nIntervId;
-var statusTexts = ["Buscando dispositivos", "Buscando dispositivos.", "Buscando dispositivos..", "Buscando dispositivos..."];
-var contenedor = document.getElementById("contenedor");
-var nuevoParrafo;
-var fileBackup;
-var fileBackupZpl;
-var changeHref;
-var pdfText = "";
-var totalNumPagesTam;
-var zebraPrinter;
-var dispFound = false;
+let statusTexts = ["Buscando dispositivos", "Buscando dispositivos.", "Buscando dispositivos..", "Buscando dispositivos..."];
+let contenedor = document.getElementById("contenedor");
+let nuevoParrafo;
+let fileBackup;
+let fileBackupZpl;
+let changeHref;
+let pdfText = "";
+let totalNumPagesTam;
+let zebraPrinter;
+let dispFound = false;
 
 /********************FUNCIONES PARA BUSCAR IMPRESORAS*******************/
 function habilitarBoton () {
@@ -74,8 +74,8 @@ function deshabilitarBoton () {
 }
 
 function flashText() {
-  var currentText = nuevoParrafo.textContent;
-  var currentIndex = statusTexts.indexOf(currentText);
+  let currentText = nuevoParrafo.textContent;
+  let currentIndex = statusTexts.indexOf(currentText);
   if (currentIndex === -1 || currentIndex === statusTexts.length - 1) {
     currentIndex = -1; // Reiniciar al primer elemento
   }
@@ -83,7 +83,7 @@ function flashText() {
 }
 
 function onDeviceSelected(selected){
-	for(var i = 0; i < devices.length; ++i){
+	for(let i = 0; i < devices.length; ++i){
 		if(selected.value == devices[i].uid && selected.value != 'SelectPrinter'){
 			selected_device = devices[i];
       habilitarBoton();
@@ -104,15 +104,15 @@ function searchPrinters(){
   //document.body.appendChild(nuevoParrafo);
   nIntervId = setInterval(flashText, 1000);
   //Get the default device from the application as a first step. Discovery takes longer to complete.
-  var html_select = document.getElementById("selected_device");
+  let html_select = document.getElementById("selected_device");
   //Discover any other devices available to the application
   BrowserPrint.getLocalDevices(function(device_list){
-    for(var i = 0; i < device_list.length; i++){
+    for(let i = 0; i < device_list.length; i++){
       //Add device to list of devices and to html select element
-      var device = device_list[i];
+      let device = device_list[i];
       if(!selected_device || device.uid != selected_device.uid){
         devices.push(device);
-        var option = document.createElement("option");
+        let option = document.createElement("option");
         option.text = device.name;
         option.value = device.uid;
         html_select.add(option);
@@ -147,7 +147,7 @@ window.addEventListener('load', () => {
   sPrinter.addEventListener('change', function() {
     reloadValuePrinter(sPrinter);
   });
-  var seleccionSaved = localStorage.getItem('typePrinterSelect');
+  let seleccionSaved = localStorage.getItem('typePrinterSelect');
   if (seleccionSaved){
     sPrinter.value = seleccionSaved;
     reloadValuePrinter(sPrinter);
@@ -165,7 +165,7 @@ function reloadValuePrinter (sPrinter) {
   const buscandoDisp = document.getElementById('BuscandoDisp');
   const buttonPrint = document.getElementById('buttonToPrint');
   const reloadButton = document.getElementById('reloadButton');
-  if (sPrinter.value === 'Zebra') {
+  if (sPrinter.value === 'Zebra iMZ220' || sPrinter.value === 'Zebra ZQ220') {
     textDev.style.display = 'block';
     selectDev.style.display = 'block';
     buscandoDisp.style.display = 'block';
@@ -193,10 +193,10 @@ function reloadValuePrinter (sPrinter) {
 /************FUNCION PARA IMPRIMIR SEGUN TIPO DE IMPRESORA*************/
 function imprimir() {
   // Obtener el valor seleccionado en el elemento select
-  var selectedPrinter = document.getElementById("printerSelect").value;
+  let selectedPrinter = document.getElementById("printerSelect").value;
   // Realizar acciones según la opción seleccionada
   if (fileBackup && fileBackup.size > 0) {
-    if (selectedPrinter === 'Zebra') {
+    if (selectedPrinter === 'Zebra iMZ220' || selectedPrinter === 'Zebra ZQ220' ) {
       try{
         alert("Imprimiendo en impresora zebra...");
         imprimirZebraTxt();
@@ -229,7 +229,7 @@ var errorCallback = function(errorMessage){
 }
 
 async function imprimirZebraZpl(){
-  var zpl=await pdfToZpl(fileBackupZpl);
+  let zpl=await pdfToZpl(fileBackupZpl);
   const zplArchive = new Blob([zpl], { type: 'text/plain' });
   selected_device.sendFile(zplArchive, finishCallback, errorCallback);
 }
@@ -327,8 +327,8 @@ function createURL() {
 //     fileBackup.arrayBuffer().then(resp => {
 					
 //       let binary = new Uint8Array(resp);
-//       var binaryString = "";
-//       for (var i=0; i<binary.byteLength; i++) {
+//       let binaryString = "";
+//       for (let i=0; i<binary.byteLength; i++) {
 //         binaryString += String.fromCharCode(binary[i]);
 //       }
 
@@ -361,7 +361,7 @@ function displayPdf(file) {
 // Agrega un event listener al input file para el evento 'change'
 function inputFileLoad() {
   fileInput.addEventListener('change', function() {
-    var file = fileInput.files[0]; // Obtener el archivo seleccionado
+    let file = fileInput.files[0]; // Obtener el archivo seleccionado
     if (file) {
       displayPdf(file);
       combineAllPDFPages().then(archive => {
@@ -484,7 +484,7 @@ function txtInventaryReport(textContent){
 }
 
 function txtRetailSales(textContent){
-  var selectedPrinter = document.getElementById("printerSelect").value;
+  let selectedPrinter = document.getElementById("printerSelect").value;
   let text = '';
   if (selectedPrinter === "Zebra iMZ220") {
     text = '! U1 JOURNAL\r\n! U1 SETLP 0 2 18\r\n! UTILITIES LT CR-X-LF PRINT\r\n                ';
@@ -622,7 +622,7 @@ function txtRetailSales(textContent){
 }
 
 function txtPurchase(textContent) {
-  var selectedPrinter = document.getElementById("printerSelect").value;
+  let selectedPrinter = document.getElementById("printerSelect").value;
   let text = '';
   if (selectedPrinter === "Zebra iMZ220") {
     text = '! U1 JOURNAL \r\n! U1 SETLP 0 2 18 \r\n! UTILITIES LT CR-X-LF PRINT \r\n! U1 COUNTRY LATIN9 \r\n                ';
@@ -1425,8 +1425,8 @@ async function getPdf(){
 
 async function createHtmlToDownload(){
   const txt = await createHtmlFromPdf(fileBackup);
-  var encoder = new TextEncoder();
-  var utf16Array = encoder.encode(txt);
+  let encoder = new TextEncoder();
+  let utf16Array = encoder.encode(txt);
   const txtArchive = new Blob([utf16Array], { type: 'text/plain;' });
   return txtArchive;
 }
