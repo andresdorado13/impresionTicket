@@ -59,6 +59,18 @@ var zebraPrinter;
 var dispFound = false;
 
 /********************FUNCIONES PARA BUSCAR IMPRESORAS*******************/
+function habilitarBoton () {
+  buttonPrint.disabled = false;
+  buttonPrint.value = 'Imprimir';
+  buttonPrint.style.backgroundColor = '#000000';
+}
+
+function deshabilitarBoton () {
+  buttonPrint.disabled = true;
+  buttonPrint.value = 'Elija un dispositivo';
+  buttonPrint.style.backgroundColor = '#D1D1D1';
+}
+
 function flashText() {
   var currentText = nuevoParrafo.textContent;
   var currentIndex = statusTexts.indexOf(currentText);
@@ -70,10 +82,15 @@ function flashText() {
 
 function onDeviceSelected(selected){
 	for(var i = 0; i < devices.length; ++i){
-		if(selected.value == devices[i].uid){
+		if(selected.value == devices[i].uid && selected.value != 'SelectPrinter'){
 			selected_device = devices[i];
-			return;
-		}
+      habilitarBoton();
+      return;
+		} else if (selected.value == 'SelectPrinter') {
+      selected_device = null;
+      deshabilitarBoton();
+      return;
+    }
 	}
 }
 
@@ -102,9 +119,7 @@ function searchPrinters(){
     clearInterval(nIntervId);
     if (device_list.length > 0) {
       dispFound = true;
-      buttonPrint.disabled = false;
-      buttonPrint.value = 'Imprimir';
-      buttonPrint.style.backgroundColor = '#000000';
+      buttonPrint.value = 'Elija un dispositivo';
       nuevoParrafo.textContent = "Dispositivos encontrados"
     } else {
       nuevoParrafo.textContent = "No hay dispositivos conectados"
