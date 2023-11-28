@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
 /**********************SERVICE WORKER******************************/
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.33')
+    navigator.serviceWorker.register('./sw.js?version=2.34')
     .then(registration => {
       //alert('Service Worker registrado con éxito:', registration);
       console.log('Service Worker registrado con éxito:', registration);
@@ -103,6 +103,9 @@ reloadButton.addEventListener('click', function() {
 });
 
 function searchPrinters(){
+
+  // Deshabilito el boton de busqueda para que no hagan busquedas simultaneas
+  reloadButton.disabled = true;
   const sPrinter = document.getElementById('printerSelect');
   nuevoParrafo = document.getElementById("BuscandoDisp");
   nuevoParrafo.textContent = "Buscando dispositivos";
@@ -114,10 +117,13 @@ function searchPrinters(){
   //Get the default device from the application as a first step. Discovery takes longer to complete.
   //Discover any other devices available to the application
   BrowserPrint.getLocalDevices(function(device_list){
-    for(let i = 0; i < device_list.length; i++){
-      //Add device to list of devices and to html select element
-      let device = device_list[i];
-      if(!selected_device || device.uid != selected_device.uid){
+
+    // Itero la lista de dispositivos encontrados para agregarlos al select y al array de dispositivos
+    for (const device of device_list) {
+      
+      // Solo agrego el elemento si no se encontraba anteriormente
+      let deviceExists = devices.some(d => d.uid == device.uid);
+      if (!deviceExists) {
         devices.push(device);
         let option = document.createElement("option");
         option.text = device.name;
@@ -134,12 +140,16 @@ function searchPrinters(){
     }
     nIntervId = null;
     reloadValuePrinter(sPrinter);
+    // Vuelvo a habilitar el boton de busqueda
+    reloadButton.disabled = false;
   }, function(){
     clearInterval(nIntervId);
     nIntervId = null;
     nuevoParrafo.textContent = "Error al buscar dispositivos"
     buttonPrint.textContent = 'Sin dispositivos para imprimir';
     reloadValuePrinter(sPrinter);
+    // Vuelvo a habilitar el boton de busqueda
+    reloadButton.disabled = false;
   },"printer");
 }
 /***********************************************************************/
