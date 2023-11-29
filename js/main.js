@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
 /**********************SERVICE WORKER******************************/
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.37')
+    navigator.serviceWorker.register('./sw.js?version=2.38')
     .then(registration => {
       //alert('Service Worker registrado con éxito:', registration);
       console.log('Service Worker registrado con éxito:', registration);
@@ -431,7 +431,7 @@ function txtInventaryReport(textContent){
   if (selectedPrinter === "Zebra iMZ220") {
     text = '! U1 JOURNAL\r\n! U1 SETLP 0 2 18\r\n! UTILITIES LT CR-X-LF PRINT\r\n           ';
   } else if (selectedPrinter === "Zebra ZQ220") {
-    text = '! U1 JOURNAL\r\n! U1 SETLP 7 0 24\r\n! UTILITIES LT CR-X-LF PRINT\r\n           ';
+    text = '           ';
   }
   let caracteresLineaMax = 0;
   let arriveDescription = false;
@@ -515,7 +515,7 @@ function txtRetailSales(textContent){
   if (selectedPrinter === "Zebra iMZ220") {
     text = '! U1 JOURNAL\r\n! U1 SETLP 0 2 18\r\n! UTILITIES LT CR-X-LF PRINT\r\n                ';
   } else if (selectedPrinter === "Zebra ZQ220") {
-    text = '! U1 JOURNAL\r\n! U1 SETLP 7 0 24\r\n! UTILITIES LT CR-X-LF PRINT\r\n                ';
+    text = '                ';
   }
   let caracteresLineaMax = 0;
   let countInv = 1;
@@ -653,7 +653,7 @@ function txtPurchase(textContent) {
   if (selectedPrinter === "Zebra iMZ220") {
     text = '! U1 JOURNAL \r\n! U1 SETLP 0 2 18 \r\n! UTILITIES LT CR-X-LF PRINT \r\n! U1 COUNTRY LATIN9 \r\n                ';
   } else if (selectedPrinter === "Zebra ZQ220") {
-    text = '';
+    text = '                ';
   }
   let actualContent;
   let afterClient = true;
@@ -671,6 +671,7 @@ function txtPurchase(textContent) {
   let spacesToFinal = 0;
   let count = 0;
   let countProducts = 0;
+  let listProduct = false;
   const spaceProductsWithoutProm = 10;
   const spaceProductsWithProm = 13;
   for (let content = 0 ; content < textContent.items.length-1 ; content++) {
@@ -720,13 +721,16 @@ function txtPurchase(textContent) {
         text += actualContent;
         text += '\r\n \r\n';
         totalAppearCount++;
+        listProduct = true;
       } else {
         text += actualContent;
         text += '\r\n \r\n';
         totalAppear = true;
+        listProduct = true;
         totalAppearCount++;
       }
     } else if (actualContent.toLowerCase().includes('sub-')) {
+      listProduct = false;
       text += ' \r\n'
       for (let spaces = 0; spaces<centerPage-Math.round((actualContent.length+textContent.items[content+1].str.length+textContent.items[content+2].str.length+textContent.items[content+3].str.length+textContent.items[content+4].str.length+textContent.items[content+5].str.length)/2) ; spaces++){
         text += ' '
@@ -808,8 +812,13 @@ function txtPurchase(textContent) {
         text += ' '
       }
       text += actualContent + ' ';
+      listProduct = false;
       countProducts++;
-    } else if (totalAppear && !subTotal || totalAppearCount == 1) {
+    } else if (actualContent.toLowerCase().includes('promocionales') && countProducts == 2 ) {
+      text += actualContent;
+      countProducts++;
+    } else if (listProduct) {
+      console.log('Actual content: '+actualContent + ', CodeProductRead: '+codeProductRead+', caracteresLineaMax: '+caracteresLineaMax+', count: '+count);
       if (codeProductRead == 0 && actualContent != '' && actualContent != ' ') { //Se el primer item del producto
         codeProductRead = 1;
         text += actualContent;
