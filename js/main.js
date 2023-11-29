@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
 /**********************SERVICE WORKER******************************/
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.35')
+    navigator.serviceWorker.register('./sw.js?version=2.36')
     .then(registration => {
       //alert('Service Worker registrado con éxito:', registration);
       console.log('Service Worker registrado con éxito:', registration);
@@ -62,18 +62,28 @@ let buttonPrint = document.getElementById('buttonToPrint');
 let reloadButton = document.getElementById('reloadButton');
 
 /********************FUNCIONES PARA BUSCAR IMPRESORAS*******************/
+
+/**
+ * Habilito el boton de impresión
+ */
 function habilitarBoton () {
   buttonPrint.disabled = false;
   buttonPrint.textContent = 'Imprimir';
   buttonPrint.style.backgroundColor = '#000000';
 }
 
+/**
+ * Deshabilito el boton de impresión
+ */
 function deshabilitarBoton (texto = 'Elija un dispositivo') {
   buttonPrint.disabled = true;
   buttonPrint.textContent = texto;
   buttonPrint.style.backgroundColor = '#D1D1D1';
 }
 
+/**
+ * Muestro un textito para indicar que está buscando las impresoras
+ */
 function flashText() {
   let currentText = nuevoParrafo.textContent;
   let currentIndex = statusTexts.indexOf(currentText);
@@ -84,17 +94,18 @@ function flashText() {
 }
 
 selectorDevice.addEventListener('change', function() {
-	for(let i = 0; i < devices.length; ++i){
-		if(selectorDevice.value == devices[i].uid && selectorDevice.value != 'SelectPrinter'){
-			selected_device = devices[i];
+
+  for (const device of devices) {
+    if(selectorDevice.value == device.uid && selectorDevice.value != 'SelectPrinter'){
+			selected_device = device;
       habilitarBoton();
-      return;
-		} else if (selected.value == 'SelectPrinter') {
+      break;
+		} else if (selectorDevice.value == 'SelectPrinter') {
       selected_device = null;
       deshabilitarBoton();
       return;
     }
-	}
+  }
 });
 
 reloadButton.addEventListener('click', function() {
