@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
 /**********************SERVICE WORKER******************************/
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.36')
+    navigator.serviceWorker.register('./sw.js?version=2.37')
     .then(registration => {
       //alert('Service Worker registrado con éxito:', registration);
       console.log('Service Worker registrado con éxito:', registration);
@@ -653,7 +653,7 @@ function txtPurchase(textContent) {
   if (selectedPrinter === "Zebra iMZ220") {
     text = '! U1 JOURNAL \r\n! U1 SETLP 0 2 18 \r\n! UTILITIES LT CR-X-LF PRINT \r\n! U1 COUNTRY LATIN9 \r\n                ';
   } else if (selectedPrinter === "Zebra ZQ220") {
-    text = '! U1 JOURNAL \r\n! U1 SETLP 7 0 24 \r\n! UTILITIES LT CR-X-LF PRINT \r\n! U1 COUNTRY LATIN9 \r\n                ';
+    text = '';
   }
   let actualContent;
   let afterClient = true;
