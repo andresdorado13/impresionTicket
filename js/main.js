@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
 /**********************SERVICE WORKER******************************/
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.42')
+    navigator.serviceWorker.register('./sw.js?version=2.43')
     .then(registration => {
       //alert('Service Worker registrado con éxito:', registration);
       console.log('Service Worker registrado con éxito:', registration);
@@ -452,7 +452,7 @@ function txtInventaryReport(textContent){
       text += '\r\n';
       text += actualContent;
     } else if (actualContent.includes('PRODUCTO')) {
-      text += '\r\n \r\n \r\n';
+      text += '\r\n \r\n';
       text += actualContent;
       text += '                            '
     } else if (actualContent.toLowerCase().includes('existencias')) {
@@ -537,7 +537,7 @@ function txtRetailSales(textContent){
     if (actualContent.toLowerCase().includes('detalle')){
       text += actualContent;
     } else if (actualContent.toLowerCase().includes('reporte')) {
-      text += '\r\n \r\n         ';
+      text += '\r\n         ';
       text += actualContent;
     } else if (actualContent.toLowerCase().includes('fecha')) {
       text += actualContent;
@@ -548,7 +548,7 @@ function txtRetailSales(textContent){
       text += '\r\n';
       text += actualContent;
     } else if (actualContent.toLowerCase().includes('producto') && !productAppear) {
-      text += '\r\n \r\n \r\n';
+      text += '\r\n \r\n';
       text += actualContent;
       text += '                     '
       productAppear = true;
@@ -792,15 +792,21 @@ function txtPurchase(textContent) {
       if (caracteresLineaMax < totalPage-1){
         if (actualContent == 'SU') {
           text += actualContent + ' ';
+        } else if (actualContent.toLowerCase().includes('compra.')) {
+          text += actualContent + '\r\n';
+          caracteresLineaMax = 0;
         } else {
           text += actualContent;
         }
+      } else if (actualContent.toLowerCase().includes('satisfacción.')) {
+        text += '\r\n' + actualContent + '\r\n';
+        caracteresLineaMax = 0;
       } else {
         caracteresLineaMax = 0;
         text += '\r\n';
         if (actualContent != ' ') {
           text += actualContent;
-        } 
+        }
         caracteresLineaMax = caracteresLineaMax + actualContent.length;
       }
     } else if (actualContent.toLowerCase().includes('productos') && countProducts == 0 ) {
@@ -1391,6 +1397,8 @@ function htmlPurchase(textContent) {
       if (textContent.items[content+1].str.toLowerCase().includes('fecha')) {
         text += '</p><p style="font-size: 15px;font-weight: bold">';
         line++;
+      } else if (actualContent.includes('.')) {
+        text += actualContent + '</p><p style="font-size: 15px;font-weight: bold">';
       } else if (textContent.items[content+1].str.length == 0) {
         text += actualContent + ' ';
       } else {
