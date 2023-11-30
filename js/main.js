@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
 /**********************SERVICE WORKER******************************/
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.44')
+    navigator.serviceWorker.register('./sw.js?version=2.45')
     .then(registration => {
       //alert('Service Worker registrado con éxito:', registration);
       console.log('Service Worker registrado con éxito:', registration);
@@ -572,6 +572,16 @@ async function createHtmlToDownload(){
 }
 /**********************************************************************/
 
+/**
+ * Esta función hace la comparación de un string con otro
+ * @param {String} actualContent
+ * @param {String} stringToVerifique - String que se va a comparar textualmente
+ * @returns {Boolean} Retorna si ambas cadenas son iguales o no  
+ */
+function verifiqueString(actualContent, stringToVerifique){
+   return actualContent.toLowerCase().includes(stringToVerifique)
+}
+
 /***************FORMATEO PARA IMPRESORA ZEBRA EN TXT******************/
 /**
  * Es la función para parsear el pdf de reporte de inventario a txt
@@ -602,17 +612,17 @@ function txtInventaryReport(textContent){
     actualContent = textContent.items[content].str;
     if (content == finalReportNamePosition){
       text += '\r\n \r\n';
-    } else if (actualContent.toLowerCase().includes('ruta:')) {
+    } else if (verifiqueString(actualContent,'ruta:')) {
       text += '\r\n';
       text += actualContent;
-    } else if (actualContent.toLowerCase().includes('vendedor:')) {
+    } else if (verifiqueString(actualContent,'vendedor:')) {
       text += '\r\n';
       text += actualContent;
     } else if (actualContent.includes('PRODUCTO')) {
       text += '\r\n \r\n';
       text += actualContent;
       text += '                            '
-    } else if (actualContent.toLowerCase().includes('existencias')) {
+    } else if (verifiqueString(actualContent,'existencias')) {
       arriveDescription = true;
       text += actualContent;
       text += '\r\n \r\n';
@@ -623,7 +633,7 @@ function txtInventaryReport(textContent){
         text += actualContent;
         caracteresLineaMax = caracteresLineaMax + actualContent.length;
       } else if (codeProductRead == 1 && /^\d+$/.test(actualContent) && textContent.items[content+1].hasEOL) { //Si el codigo de producto tiene un enter despues, siga con el siguiente producto
-        for (let spaces = 0 ; spaces < positionExistences-caracteresLineaMax ; spaces++) {
+        for (let spaces = 0 ; spaces < positionExistences-caracteresLineaMax-Math.round(actualContent.length/2) ; spaces++) {
           text += ' ';
         }
         text += actualContent;
@@ -631,7 +641,7 @@ function txtInventaryReport(textContent){
         codeProductRead = 0;
         text += '\r\n';
       } else if (codeProductRead == 1 && /^\d+$/.test(actualContent) && textContent.items[content+1].str == '') { //Si el codigo de producto tiene un contenido vacio despues, siga con el siguiente producto
-        for (let spaces = 0 ; spaces < positionExistences-caracteresLineaMax ; spaces++) {
+        for (let spaces = 0 ; spaces < positionExistences-caracteresLineaMax-Math.round(actualContent.length/2) ; spaces++) {
           text += ' ';
         }
         text += actualContent;
@@ -639,7 +649,7 @@ function txtInventaryReport(textContent){
         codeProductRead = 0;
         text += '\r\n';
       } else if (codeProductRead == 1 && /^\d+$/.test(actualContent) && textContent.items[content+1].str != ' ' ) { //Si el codigo de producto esta al final de una pagina del pdf, verifique que haya algo en la siguiente pagina y siga
-        for (let spaces = 0 ; spaces < positionExistences-caracteresLineaMax ; spaces++) {
+        for (let spaces = 0 ; spaces < positionExistences-caracteresLineaMax-Math.round(actualContent.length/2) ; spaces++) {
           text += ' ';
         }
         text += actualContent;
@@ -661,7 +671,7 @@ function txtInventaryReport(textContent){
       text += actualContent;
     }
   }
-  for (let spaces = 0 ; spaces < positionExistences-caracteresLineaMax ; spaces++) {
+  for (let spaces = 0 ; spaces < positionExistences-caracteresLineaMax-Math.round(actualContent.length/2)-1 ; spaces++) {
     text += ' ';
   }
   text += textContent.items[textContent.items.length-1].str;
@@ -701,37 +711,37 @@ function txtRetailSales(textContent){
   let productAppear = false;
   for (let content = 0 ; content < textContent.items.length-2 ; content++) {
     actualContent = textContent.items[content].str;
-    if (actualContent.toLowerCase().includes('detalle')){
+    if (verifiqueString(actualContent,'detalle')){
       text += actualContent;
-    } else if (actualContent.toLowerCase().includes('reporte')) {
+    } else if (verifiqueString(actualContent,'reporte')) {
       text += '\r\n         ';
       text += actualContent;
-    } else if (actualContent.toLowerCase().includes('fecha')) {
+    } else if (verifiqueString(actualContent,'fecha')) {
       text += actualContent;
-    } else if (actualContent.toLowerCase().includes('ruta:')) {
+    } else if (verifiqueString(actualContent,'ruta:')) {
       text += '\r\n';
       text += actualContent;
-    } else if (actualContent.toLowerCase().includes('vendedor:')) {
+    } else if (verifiqueString(actualContent,'vendedor:')) {
       text += '\r\n';
       text += actualContent;
-    } else if (actualContent.toLowerCase().includes('producto') && !productAppear) {
+    } else if (verifiqueString(actualContent,'producto') && !productAppear) {
       text += '\r\n \r\n';
       text += actualContent;
       text += '                     '
       productAppear = true;
-    } else if (actualContent.toLowerCase().includes('cantidad')) {
+    } else if (verifiqueString(actualContent,'cantidad')) {
       text += actualContent;
       text += '    '
-    } else if (actualContent.toLowerCase().includes('total') && !totalAppear) {
+    } else if (verifiqueString(actualContent,'total') && !totalAppear) {
       text += actualContent;
       text += '\r\n \r\n';
-    } else if (actualContent.toLowerCase().includes('Inv.')) {
+    } else if (verifiqueString(actualContent,'Inv.')) {
       text += actualContent;
       countInv++;
-    } else if (actualContent.toLowerCase().includes('inicial')) {
+    } else if (verifiqueString(actualContent,'inicial')) {
       text += actualContent;
       text += '                '
-    } else if (actualContent.toLowerCase().includes('final')) {
+    } else if (verifiqueString(actualContent,'final')) {
       invInicialFinal = true;
       text += actualContent;
       text += '\r\n \r\n';
@@ -748,7 +758,7 @@ function txtRetailSales(textContent){
         if(textContent.items[content + 1].str == ' '){
           content++;
           text += '\r\n \r\n';
-        } else if (textContent.items[content + 2].str.toLowerCase().includes('total')){
+        } else if (verifiqueString(textContent.items[content + 2].str,'total')){
           totalAppear = true;
           invInicialFinal = false;
         } else {
@@ -792,14 +802,14 @@ function txtRetailSales(textContent){
         caracteresLineaMax = caracteresLineaMax + actualContent.length;
       }
     } else if (totalAppear) {
-      if(actualContent.toLowerCase().includes('total:')){
+      if(verifiqueString(actualContent,'total:')){
         text += '\r\n \r\n';
         for(let spaces = 0 ; spaces < centerTotalsFinal-Math.round((actualContent.length+textContent.items[textContent.items.length-1].str.length)/2) ; spaces++) {
           text += ' ';
         }
         text += actualContent;
         text += ' ' + textContent.items[textContent.items.length-1].str;
-      } else if (actualContent.toLowerCase().includes('total')) {
+      } else if (verifiqueString(actualContent,'total')) {
         if (totalRepeats == 0){
           text += '\r\n \r\n';
           for (let spaces = 0 ; spaces < centerTotalsFinal-Math.round((actualContent.length+textContent.items[content+1].str.length+textContent.items[content+2].str.length+textContent.items[content+3].str.length+textContent.items[content+4].str.length)/2) ; spaces++) {
@@ -856,10 +866,10 @@ function txtPurchase(textContent) {
   const spaceProductsWithProm = 13;
   for (let content = 0 ; content < textContent.items.length-1 ; content++) {
     actualContent = textContent.items[content].str;
-    if (actualContent.toLowerCase().includes('ticket')){
+    if (verifiqueString(actualContent,'ticket')){
       text += '                  ';
       text += actualContent;
-    } else if (actualContent.toLowerCase().includes('cliente:')) {
+    } else if (verifiqueString(actualContent,'cliente:')) {
       text += '\r\n \r\n';
       text += actualContent;
       afterClient = true;
@@ -867,36 +877,36 @@ function txtPurchase(textContent) {
       text += '\r\n';
       text += actualContent;
       afterClient = false;
-    } else if (actualContent.toLowerCase().includes('dirección:')) {
+    } else if (verifiqueString(actualContent,'dirección:')) {
       text += '\r\n';
       text += actualContent;
-    } else if (actualContent.toLowerCase().includes('fecha')) {
+    } else if (verifiqueString(actualContent,'fecha')) {
       text += '\r\n';
       text += actualContent;
       caseBuyLine = false;
-    } else if (actualContent.toLowerCase().includes('orden')) {
+    } else if (verifiqueString(actualContent,'orden')) {
       text += '\r\n';
       text += actualContent;
-    } else if (actualContent.toLowerCase().includes('condición')) {
+    } else if (verifiqueString(actualContent,'condición')) {
       text += '\r\n';
       text += actualContent;
-    } else if (actualContent.toLowerCase().includes('elaboró:')) {
+    } else if (verifiqueString(actualContent,'elaboró:')) {
       text += '\r\n';
       text += actualContent;
-    } else if (actualContent.toLowerCase().includes('descripción')) {
+    } else if (verifiqueString(actualContent,'descripción')) {
       text += '\r\n';
       text += actualContent;
       text += '       ';
       productAppear = true;
-    } else if (actualContent.toLowerCase().includes('cant.')) {
+    } else if (verifiqueString(actualContent,'cant.')) {
       text += actualContent;
       text += ' '
-    } else if (actualContent.toLowerCase().includes('precio')) {
+    } else if (verifiqueString(actualContent,'precio')) {
       text += actualContent;
-    } else if (actualContent.toLowerCase().includes('unit.')) {
+    } else if (verifiqueString(actualContent,'unit.')) {
       text += actualContent;
       text += '   '
-    } else if (actualContent.toLowerCase().includes('total')  && !totalAppear) {
+    } else if (verifiqueString(actualContent,'total') && !totalAppear) {
       if (totalAppearCount == 0) {
         text += actualContent;
         text += '\r\n \r\n';
@@ -909,7 +919,7 @@ function txtPurchase(textContent) {
         listProduct = true;
         totalAppearCount++;
       }
-    } else if (actualContent.toLowerCase().includes('sub-')) {
+    } else if (verifiqueString(actualContent,'sub-')) {
       listProduct = false;
       text += ' \r\n'
       for (let spaces = 0; spaces<centerPage-Math.round((actualContent.length+textContent.items[content+1].str.length+textContent.items[content+2].str.length+textContent.items[content+3].str.length+textContent.items[content+4].str.length+textContent.items[content+5].str.length)/2) ; spaces++){
@@ -917,27 +927,27 @@ function txtPurchase(textContent) {
       }
       text += actualContent;
       subTotal = true;
-    } else if (actualContent.toLowerCase().includes('descuento:') || actualContent.toLowerCase().includes('impuesto:')) {
+    } else if (verifiqueString(actualContent,'descuento:')|| verifiqueString(actualContent,'impuesto:')) {
       text += '\r\n \r\n'
       for (let spaces = 0; spaces<centerPage-Math.round((actualContent.length+textContent.items[content+1].str.length+textContent.items[content+2].str.length+textContent.items[content+3].str.length+textContent.items[content+4].str.length)/2) ; spaces++){
         text += ' '
       }
       text += actualContent;
-    } else if (actualContent.toLowerCase().includes('total')  && textContent.items[content-1].str.toLowerCase().includes('sub-')) {
+    } else if (verifiqueString(actualContent,'total')  && verifiqueString(textContent.items[content-1].str,'sub-')) {
       text += actualContent;
-    } else if (actualContent.toLowerCase().includes('total:') && totalAppear) {
+    } else if (verifiqueString(actualContent,'total:') && totalAppear) {
       text += '\r\n \r\n'
       for (let spaces = 0; spaces<centerPage-Math.round((actualContent.length+textContent.items[content+1].str.length+textContent.items[content+2].str.length+textContent.items[content+3].str.length+textContent.items[content+4].str.length)/2) ; spaces++){
         text += ' '
       }
       text += actualContent;
-    } else if(actualContent.toLowerCase().includes('importe')) {
+    } else if(verifiqueString(actualContent,'importe')) {
       caracteresLineaMax = 0;
       text += '\r\n \r\n';
       text += actualContent;
       caracteresLineaMax = caracteresLineaMax + actualContent.length;
       importLine = true;
-    } else if(actualContent.toLowerCase().includes('***copia***')) {
+    } else if(verifiqueString(actualContent,'***copia***')) {
       text += '\r\n \r\n';
       for (let spaces = 0; spaces<centerPage-Math.round(actualContent.length/2) ; spaces++){
         text += ' '
@@ -968,13 +978,13 @@ function txtPurchase(textContent) {
       if (caracteresLineaMax < totalPage-1){
         if (actualContent == 'SU') {
           text += actualContent + ' ';
-        } else if (actualContent.toLowerCase().includes('compra.')) {
+        } else if (verifiqueString(actualContent,'compra.')) {
           text += actualContent + '\r\n';
           caracteresLineaMax = 0;
         } else {
           text += actualContent;
         }
-      } else if (actualContent.toLowerCase().includes('satisfacción.')) {
+      } else if (verifiqueString(actualContent,'satisfacción.')) {
         text += '\r\n' + actualContent + '\r\n';
         caracteresLineaMax = 0;
       } else {
@@ -985,14 +995,14 @@ function txtPurchase(textContent) {
         }
         caracteresLineaMax = caracteresLineaMax + actualContent.length;
       }
-    } else if (actualContent.toLowerCase().includes('productos') && countProducts == 0 ) {
+    } else if (verifiqueString(actualContent,'productos') && countProducts == 0 ) {
       text += '\r\n \r\n'
       for (let spaces = 0; spaces < spaceProductsWithoutProm ; spaces++){
         text += ' '
       }
       text += actualContent;
       countProducts++;
-    } else if (actualContent.toLowerCase().includes('productos') && countProducts == 1 ) {
+    } else if (verifiqueString(actualContent,'productos') && countProducts == 1 ) {
       text += '\r\n'
       for (let spaces = 0; spaces < spaceProductsWithProm ; spaces++){
         text += ' '
@@ -1000,11 +1010,10 @@ function txtPurchase(textContent) {
       text += actualContent + ' ';
       listProduct = false;
       countProducts++;
-    } else if (actualContent.toLowerCase().includes('promocionales') && countProducts == 2 ) {
+    } else if (verifiqueString(actualContent,'promocionales') && countProducts == 2 ) {
       text += actualContent;
       countProducts++;
     } else if (listProduct) {
-      console.log('Actual content: '+actualContent + ', CodeProductRead: '+codeProductRead+', caracteresLineaMax: '+caracteresLineaMax+', count: '+count);
       if (codeProductRead == 0 && actualContent != '' && actualContent != ' ') { //Se el primer item del producto
         codeProductRead = 1;
         text += actualContent;
@@ -1252,7 +1261,7 @@ function htmlRetailSales(textContent) {
         text += actualContent;
       }
     } else if (line == 7){
-      if (actualContent.toLowerCase().includes('inicial')){
+      if (verifiqueString(actualContent,'inicial')){
           text += actualContent + '</td><td>';
       } else if (actualContentEnter) {
         text += actualContent + '</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td></tr></tbody></table><table style="font-size: 15px;font-weight: bold"><tbody>';
@@ -1268,7 +1277,7 @@ function htmlRetailSales(textContent) {
         if (count == 0) {
           text += actualContent;
           count = 1;
-        } else if (textContent.items[content+1].str.toLowerCase().includes('total') || textContent.items[content+2].str.toLowerCase().includes('total')) {
+        } else if (verifiqueString(textContent.items[content+1].str,'total') || verifiqueString(textContent.items[content+2].str,'total')) {
           text += actualContent + '</td></tr></tbody></table><p>&nbsp;</p><div align="center" style="font-size: 15px;font-weight: bold"><p>';
           line++;
           count = 0;
@@ -1316,7 +1325,7 @@ function htmlRetailSales(textContent) {
         }
       }
     } else if (line == 9 || line == 10 || line == 11 || line == 12) {
-      if (textContent.items[content+1].str.toLowerCase().includes('total')){
+      if (verifiqueString(textContent.items[content+1].str,'total')){
         text += actualContent + '</p><p>';
         line++;
       } else {
@@ -1409,7 +1418,7 @@ function htmlPurchase(textContent) {
         text += actualContent;
       } 
     } else if (line == 11 || line == 14){
-      if (actualContent == ' ' && textContent.items[content+1].str.toLowerCase().includes('unit')) {
+      if (actualContent == ' ' && verifiqueString(textContent.items[content+1].str,'unit')) {
         text += actualContent;
       } else if(actualContent == ' '){
         text += '</td><td>';
@@ -1433,12 +1442,12 @@ function htmlPurchase(textContent) {
         } else if (count == 2) {
           text += actualContent;
           count = 3;
-        } else if (textContent.items[content+1].str.toLowerCase().includes('productos') || textContent.items[content+2].str.toLowerCase().includes('productos')) {
+        } else if (verifiqueString(textContent.items[content+1].str,'productos') || verifiqueString(textContent.items[content+2].str,'productos')) {
           text += actualContent + '</td></tr></tbody></table><p>&nbsp;</p><div align="center" style="font-size: 15px;font-weight: bold"><p>';
           line++;
           count = 0;
           codeProductRead = 0;
-        } else if (textContent.items[content+1].str.toLowerCase().includes('sub') || textContent.items[content+2].str.toLowerCase().includes('sub')) {
+        } else if (verifiqueString(textContent.items[content+1].str,'sub') || verifiqueString(textContent.items[content+2].str,'sub')) {
           text += actualContent + '</td></tr></tbody></table><p>&nbsp;</p><div align="center" style="font-size: 15px;font-weight: bold"><p>';
           line++;
           count = 0;
@@ -1496,7 +1505,7 @@ function htmlPurchase(textContent) {
         text += actualContent;
       }
     } else if (line == 20) {
-      if (textContent.items[content+1].str.toLowerCase().includes('***')) {
+      if (verifiqueString(textContent.items[content+1].str,'***')) {
         text += '</p><div align="center" style="font-size: 15px;font-weight: bold"><p>';
         line++;
       } else if (textContent.items[content+1].str.length == 0) {
@@ -1508,7 +1517,7 @@ function htmlPurchase(textContent) {
       text += actualContent + '</p></div><p style="font-size: 15px;font-weight: bold">';
       line++;
     } else if (line == 22) {
-      if (textContent.items[content+1].str.toLowerCase().includes('fecha')) {
+      if (verifiqueString(textContent.items[content+1].str,'fecha')) {
         text += '</p><p style="font-size: 15px;font-weight: bold">';
         line++;
       } else if (actualContent.includes('.')) {
