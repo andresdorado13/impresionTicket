@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
 /**********************SERVICE WORKER******************************/
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.38')
+    navigator.serviceWorker.register('./sw.js?version=2.39')
     .then(registration => {
       //alert('Service Worker registrado con éxito:', registration);
       console.log('Service Worker registrado con éxito:', registration);
@@ -444,10 +444,10 @@ function txtInventaryReport(textContent){
     if (content == finalReportNamePosition){
       text += '\r\n \r\n';
     } else if (actualContent.toLowerCase().includes('ruta:')) {
-      text += '\r\n \r\n';
+      text += '\r\n';
       text += actualContent;
     } else if (actualContent.toLowerCase().includes('vendedor:')) {
-      text += '\r\n \r\n';
+      text += '\r\n';
       text += actualContent;
     } else if (actualContent.includes('PRODUCTO')) {
       text += '\r\n \r\n \r\n';
@@ -456,7 +456,7 @@ function txtInventaryReport(textContent){
     } else if (actualContent.toLowerCase().includes('existencias')) {
       arriveDescription = true;
       text += actualContent;
-      text += '\r\n \r\n \r\n';
+      text += '\r\n \r\n';
       content++;
     } else if (arriveDescription) {
       if (codeProductRead == 0) { //Se el primer item del producto
@@ -539,10 +539,10 @@ function txtRetailSales(textContent){
     } else if (actualContent.toLowerCase().includes('fecha')) {
       text += actualContent;
     } else if (actualContent.toLowerCase().includes('ruta:')) {
-      text += '\r\n \r\n';
+      text += '\r\n';
       text += actualContent;
     } else if (actualContent.toLowerCase().includes('vendedor:')) {
-      text += '\r\n \r\n';
+      text += '\r\n';
       text += actualContent;
     } else if (actualContent.toLowerCase().includes('producto') && !productAppear) {
       text += '\r\n \r\n \r\n';
@@ -564,7 +564,7 @@ function txtRetailSales(textContent){
     } else if (actualContent.toLowerCase().includes('final')) {
       invInicialFinal = true;
       text += actualContent;
-      text += '\r\n \r\n \r\n';
+      text += '\r\n \r\n';
       content++;
     } else if (invInicialFinal) {
       if (codeProductRead == 0 && actualContent != '' && actualContent != ' ') { //Se el primer item del producto
@@ -651,7 +651,7 @@ function txtPurchase(textContent) {
   let selectedPrinter = document.getElementById("printerSelect").value;
   let text = '';
   if (selectedPrinter === "Zebra iMZ220") {
-    text = '! U1 JOURNAL \r\n! U1 SETLP 0 2 18 \r\n! UTILITIES LT CR-X-LF PRINT \r\n! U1 COUNTRY LATIN9 \r\n                ';
+    text = '! U1 JOURNAL \r\n! U1 SETLP 0 2 18 \r\n! UTILITIES LT CR-X-LF PRINT \r\n                ';
   } else if (selectedPrinter === "Zebra ZQ220") {
     text = '                ';
   }
@@ -684,24 +684,24 @@ function txtPurchase(textContent) {
       text += actualContent;
       afterClient = true;
     } else if (afterClient && textContent.items[content].hasEOL) {
-      text += '\r\n \r\n';
+      text += '\r\n';
       text += actualContent;
       afterClient = false;
     } else if (actualContent.toLowerCase().includes('dirección:')) {
-      text += '\r\n \r\n';
+      text += '\r\n';
       text += actualContent;
     } else if (actualContent.toLowerCase().includes('fecha')) {
-      text += '\r\n \r\n';
+      text += '\r\n';
       text += actualContent;
       caseBuyLine = false;
     } else if (actualContent.toLowerCase().includes('orden')) {
-      text += '\r\n \r\n';
+      text += '\r\n';
       text += actualContent;
     } else if (actualContent.toLowerCase().includes('condición')) {
-      text += '\r\n \r\n';
+      text += '\r\n';
       text += actualContent;
     } else if (actualContent.toLowerCase().includes('elaboró:')) {
-      text += '\r\n \r\n';
+      text += '\r\n';
       text += actualContent;
     } else if (actualContent.toLowerCase().includes('descripción')) {
       text += '\r\n';
@@ -807,7 +807,7 @@ function txtPurchase(textContent) {
       text += actualContent;
       countProducts++;
     } else if (actualContent.toLowerCase().includes('productos') && countProducts == 1 ) {
-      text += '\r\n \r\n'
+      text += '\r\n'
       for (let spaces = 0; spaces < spaceProductsWithProm ; spaces++){
         text += ' '
       }
