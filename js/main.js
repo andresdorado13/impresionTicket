@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
 /**********************SERVICE WORKER******************************/
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.41')
+    navigator.serviceWorker.register('./sw.js?version=2.42')
     .then(registration => {
       //alert('Service Worker registrado con éxito:', registration);
       console.log('Service Worker registrado con éxito:', registration);
@@ -60,6 +60,7 @@ let zebraPrinter;
 let dispFound = false;
 let buttonPrint = document.getElementById('buttonToPrint');
 let reloadButton = document.getElementById('reloadButton');
+const headerZebraImz220 = text = '! U1 JOURNAL \r\n! U1 SETLP 0 2 18 \r\n! UTILITIES LT CR-X-LF PRINT \r\n! U1 COUNTRY LATIN9\r\n';
 
 /********************FUNCIONES PARA BUSCAR IMPRESORAS*******************/
 
@@ -429,7 +430,8 @@ function txtInventaryReport(textContent){
   let selectedPrinter = document.getElementById("printerSelect").value;
   let text = '';
   if (selectedPrinter === "Zebra iMZ220") {
-    text = '! U1 JOURNAL\r\n! U1 SETLP 0 2 18\r\n! UTILITIES LT CR-X-LF PRINT\r\n! U1 COUNTRY LATIN9\r\n           ';
+    text = headerZebraImz220;
+    text += '           ';
   } else if (selectedPrinter === "Zebra ZQ220") {
     text = '           ';
   }
@@ -513,7 +515,8 @@ function txtRetailSales(textContent){
   let selectedPrinter = document.getElementById("printerSelect").value;
   let text = '';
   if (selectedPrinter === "Zebra iMZ220") {
-    text = '! U1 JOURNAL\r\n! U1 SETLP 0 2 18\r\n! UTILITIES LT CR-X-LF PRINT\r\n! U1 COUNTRY LATIN9\r\n                ';
+    text = headerZebraImz220;
+    text += '                ';
   } else if (selectedPrinter === "Zebra ZQ220") {
     text = '                ';
   }
@@ -651,7 +654,8 @@ function txtPurchase(textContent) {
   let selectedPrinter = document.getElementById("printerSelect").value;
   let text = '';
   if (selectedPrinter === "Zebra iMZ220") {
-    text = '! U1 JOURNAL \r\n! U1 SETLP 0 2 18 \r\n! UTILITIES LT CR-X-LF PRINT \r\n! U1 COUNTRY LATIN9\r\n                ';
+    text = headerZebraImz220;
+    text += '                ';
   } else if (selectedPrinter === "Zebra ZQ220") {
     text = '                ';
   }
