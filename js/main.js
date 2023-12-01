@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
  */
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.49')
+    navigator.serviceWorker.register('./sw.js?version=2.50')
     .then(registration => {
       console.log('Service Worker registrado con éxito:', registration);
     })
@@ -97,7 +97,7 @@ let reloadButton = document.getElementById('reloadButton');
  * ! UTILITIES LT CR-X-LF PRINT: Este comando indica que se imprimirá una etiqueta y acepte caracteres especiales como \r y \n.
  * ! U1 COUNTRY LATIN9: Este comando establece el país del teclado de la impresora. 
  */
-const headerZebraImz220 = text = '! U1 JOURNAL \r\n! U1 SETLP 0 2 18 \r\n! UTILITIES LT CR-X-LF PRINT \r\n! U1 COUNTRY LATIN9\r\n';
+const headerZebraImz220 = text = '! U1 JOURNAL ! U1 SETLP 0 2 18 ! UTILITIES LT CR-X-LF PRINT ! U1 COUNTRY LATIN9\r\n';
 /***********************************************************************/
 
 /************FUNCION PARA IMPRIMIR SEGUN TIPO DE IMPRESORA*************/
