@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
 /**********************SERVICE WORKER******************************/
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.46')
+    navigator.serviceWorker.register('./sw.js?version=2.47')
     .then(registration => {
       //alert('Service Worker registrado con éxito:', registration);
       console.log('Service Worker registrado con éxito:', registration);
@@ -32,7 +32,7 @@ function registerServiceWorker() {
       if (file.type === 'application/pdf') {
         dataTransfer.items.add(file);
         fileInput.files = dataTransfer.files;
-        displayPdf(file);
+        fileBackup = file;
         combineAllPDFPages().then(archive => {
           fileBackup=archive;
           getPdf(createURL);
@@ -79,7 +79,6 @@ let statusTexts = ["Buscando dispositivos", "Buscando dispositivos.", "Buscando 
 let contenedor = document.getElementById("contenedor");
 let nuevoParrafo;
 let fileBackup;
-let fileBackupZpl;
 let changeHref;
 let pdfText = '';
 let totalNumPagesTam;
@@ -174,7 +173,7 @@ selectorDevice.addEventListener('change', function() {
 		} else if (selectorDevice.value == 'SelectPrinter') {
       selected_device = null;
       deshabilitarBoton();
-      return;
+      break;
     }
   }
 });
@@ -274,25 +273,15 @@ function searchPrinters(){
 /***********************************************************************/
 
 /***********************FUNCIONES PARA INPUT FILE**********************/
-/**
- * Asigna el pdf a variables globales para manipular
- * @param {Object} file - Archivo que ha sido cargado en el file input 
- */
-function displayPdf(file) {
-  fileBackup=file;
-  fileBackupZpl=file;
-}
-
 // Agrega un event listener al input file para el evento 'change'
 function inputFileLoad() {
   fileInput.addEventListener('change', function() {
     let file = fileInput.files[0]; // Obtener el archivo seleccionado
     if (file) {
       if (file.type === 'application/pdf') {
-        displayPdf(file);
+        fileBackup = file;
         combineAllPDFPages().then(archive => {
           fileBackup=archive;
-          fileBackupZpl=file;
           getPdf(createURL);
         });
         alert("Archivo cargado correctamente");
@@ -339,9 +328,10 @@ async function combineAllPDFPages() {
  * Crea un archivo txt del pdf que se le mande y es formateado segun el ticket
  * a imprimir
  * @param {Object} fileBackup - Archivo pdf con las paginas combinadas en una sola
- * @returns {text} String con el contenido parseado del pdf a txt 
+ * @returns {String} String con el contenido parseado del pdf a txt 
  */
 async function createTxtFromPdf(fileBackup) {
+  const pageNum = 1;
   if (!fileBackup) {
     return ''; // Devuelve una cadena vacía si no hay archivo
   }
@@ -353,33 +343,29 @@ async function createTxtFromPdf(fileBackup) {
 
       pdfjsLib.getDocument(arrayBuffer).promise.then(async function(pdfDoc) {
         let text = '';
-        const numPages = pdfDoc.numPages;
-
-        for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-          const page = await pdfDoc.getPage(pageNum);
-          const textContent = await page.getTextContent();
-          //Revisa que tipo de ticket es para formatear en txt
-          for (const textItem of textContent.items) {
-            //Crea el txt en caso de que el ticket sea de inventario
-            if (textItem.str.toLowerCase().includes('inventario')) {
-              text = txtInventaryReport(textContent);
-              resolve(text);
-              return;
-            } //Crea el txt en caso de que el ticket sea de ticket de venta 
-            else if (textItem.str.toLowerCase().includes('ticket')) {
-              text = txtPurchase(textContent);
-              resolve(text);
-              return;
-            } //Crea el txt en caso de que el ticket sea de reporte de liquidación
-            else if (textItem.str.toLowerCase().includes('liquidación')) {
-              text = txtRetailSales(textContent);
-              resolve(text);
-              return;
-            }
-          }
-          if (pageNum === numPages) {
+        const page = await pdfDoc.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        //Revisa que tipo de ticket es para formatear en txt
+        for (const textItem of textContent.items) {
+          //Crea el txt en caso de que el ticket sea de inventario
+          if (textItem.str.toLowerCase().includes('inventario')) {
+            text = txtInventaryReport(textContent);
             resolve(text);
+            break;
+          } //Crea el txt en caso de que el ticket sea de ticket de venta 
+          else if (textItem.str.toLowerCase().includes('ticket')) {
+            text = txtPurchase(textContent);
+            resolve(text);
+            break;
+          } //Crea el txt en caso de que el ticket sea de reporte de liquidación
+          else if (textItem.str.toLowerCase().includes('liquidación')) {
+            text = txtRetailSales(textContent);
+            resolve(text);
+            break;
           }
+        }
+        if (pageNum === numPages) {
+          resolve(text);
         }
       });
     };
@@ -424,7 +410,7 @@ async function descargarZebraTxt() {
 
 /**
  * Crea un archivo con el pdf parseado para la zebra
- * @returns {txtArchive} Archivo generado en utf-16le
+ * @returns {Object} Archivo generado en utf-16le
  */
 async function createTxtUtf16le() {
   try {
@@ -497,9 +483,10 @@ function imprimirStar(){
 /**
  * Usa el pdf cargado y lo parsea a un html que sera usado mas adelante para
  * imprimir en un ticket desde la impresora star
- * @returns {text} String del pdf que fue parseado a html
+ * @returns {String} String del pdf que fue parseado a html
  */
 async function createHtmlFromPdf() {
+  const pageNum = 1;
   if (!fileBackup) {
     return ''; // Devuelve una cadena vacía si no hay archivo
   }
@@ -511,33 +498,28 @@ async function createHtmlFromPdf() {
 
       pdfjsLib.getDocument(arrayBuffer).promise.then(async function(pdfDoc) {
         let text = '';
-        const numPages = pdfDoc.numPages;
-
-        for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-          const page = await pdfDoc.getPage(pageNum);
-          const textContent = await page.getTextContent();
-
-          for (const textItem of textContent.items) {
-            //Crea el txt en caso de que el ticket sea de inventario
-            if (textItem.str.toLowerCase().includes('inventario')) {
-              text = htmlInventaryReport(textContent);
-              resolve(text);
-              return;
-            } //Crea el txt en caso de que el ticket sea de ticket de venta 
-            else if (textItem.str.toLowerCase().includes('ticket')) {
-              text = htmlPurchase(textContent);
-              resolve(text);
-              return;
-            } //Crea el txt en caso de que el ticket sea de reporte de liquidación
-            else if (textItem.str.toLowerCase().includes('liquidación')) {
-              text = htmlRetailSales(textContent);
-              resolve(text);
-              return;
-            }
-          }
-          if (pageNum === numPages) {
+        const page = await pdfDoc.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        for (const textItem of textContent.items) {
+          //Crea el txt en caso de que el ticket sea de inventario
+          if (textItem.str.toLowerCase().includes('inventario')) {
+            text = htmlInventaryReport(textContent);
             resolve(text);
+            break;
+          } //Crea el txt en caso de que el ticket sea de ticket de venta 
+          else if (textItem.str.toLowerCase().includes('ticket')) {
+            text = htmlPurchase(textContent);
+            resolve(text);
+            break;
+          } //Crea el txt en caso de que el ticket sea de reporte de liquidación
+          else if (textItem.str.toLowerCase().includes('liquidación')) {
+            text = htmlRetailSales(textContent);
+            resolve(text);
+            break;
           }
+        }
+        if (pageNum === numPages) {
+          resolve(text);
         }
       });
     };
@@ -561,7 +543,7 @@ async function downloadHtml() {
 /**
  * A partir del contenido html generado por el pdf, se crea un archivo
  * html para descargar
- * @returns {txtArchive} Archivo html creado en un texto plano
+ * @returns {Object} Archivo html creado en un texto plano
  */
 async function createHtmlToDownload(){
   const txt = await createHtmlFromPdf(fileBackup);
@@ -578,7 +560,7 @@ async function createHtmlToDownload(){
  * @param {String} stringToVerifique - String que se va a comparar textualmente
  * @returns {Boolean} Retorna si ambas cadenas son iguales o no  
  */
-function verifiqueString(actualContent, stringToVerifique){
+function verifyString(actualContent, stringToVerifique){
    return actualContent.toLowerCase().includes(stringToVerifique)
 }
 
@@ -589,7 +571,7 @@ function verifiqueString(actualContent, stringToVerifique){
  * acomodar manualmente el orden y centralización de los elementos del
  * pdf
  * @param {String} textContent
- * @returns {text} String que tiene el formato del pdf cargado a imprimir en zebra 
+ * @returns {String} String que tiene el formato del pdf cargado a imprimir en zebra 
  */
 function txtInventaryReport(textContent){
   let selectedPrinter = document.getElementById("printerSelect").value;
@@ -612,17 +594,17 @@ function txtInventaryReport(textContent){
     actualContent = textContent.items[content].str;
     if (content == finalReportNamePosition){
       text += '\r\n \r\n';
-    } else if (verifiqueString(actualContent,'ruta:')) {
+    } else if (verifyString(actualContent,'ruta:')) {
       text += '\r\n';
       text += actualContent;
-    } else if (verifiqueString(actualContent,'vendedor:')) {
+    } else if (verifyString(actualContent,'vendedor:')) {
       text += '\r\n';
       text += actualContent;
     } else if (actualContent.includes('PRODUCTO')) {
       text += '\r\n \r\n';
       text += actualContent;
       text += '                            '
-    } else if (verifiqueString(actualContent,'existencias')) {
+    } else if (verifyString(actualContent,'existencias')) {
       arriveDescription = true;
       text += actualContent;
       text += '\r\n \r\n';
@@ -684,7 +666,7 @@ function txtInventaryReport(textContent){
  * acomodar manualmente el orden y centralización de los elementos del
  * pdf
  * @param {String} textContent
- * @returns {text} String que tiene el formato del pdf cargado a imprimir en zebra
+ * @returns {String} String que tiene el formato del pdf cargado a imprimir en zebra
  */
 function txtRetailSales(textContent){
   let selectedPrinter = document.getElementById("printerSelect").value;
@@ -711,37 +693,37 @@ function txtRetailSales(textContent){
   let productAppear = false;
   for (let content = 0 ; content < textContent.items.length-2 ; content++) {
     actualContent = textContent.items[content].str;
-    if (verifiqueString(actualContent,'detalle')){
+    if (verifyString(actualContent,'detalle')){
       text += actualContent;
-    } else if (verifiqueString(actualContent,'reporte')) {
+    } else if (verifyString(actualContent,'reporte')) {
       text += '\r\n         ';
       text += actualContent;
-    } else if (verifiqueString(actualContent,'fecha')) {
+    } else if (verifyString(actualContent,'fecha')) {
       text += actualContent;
-    } else if (verifiqueString(actualContent,'ruta:')) {
+    } else if (verifyString(actualContent,'ruta:')) {
       text += '\r\n';
       text += actualContent;
-    } else if (verifiqueString(actualContent,'vendedor:')) {
+    } else if (verifyString(actualContent,'vendedor:')) {
       text += '\r\n';
       text += actualContent;
-    } else if (verifiqueString(actualContent,'producto') && !productAppear) {
+    } else if (verifyString(actualContent,'producto') && !productAppear) {
       text += '\r\n \r\n';
       text += actualContent;
       text += '                     '
       productAppear = true;
-    } else if (verifiqueString(actualContent,'cantidad')) {
+    } else if (verifyString(actualContent,'cantidad')) {
       text += actualContent;
       text += '    '
-    } else if (verifiqueString(actualContent,'total') && !totalAppear) {
+    } else if (verifyString(actualContent,'total') && !totalAppear) {
       text += actualContent;
       text += '\r\n \r\n';
-    } else if (verifiqueString(actualContent,'Inv.')) {
+    } else if (verifyString(actualContent,'Inv.')) {
       text += actualContent;
       countInv++;
-    } else if (verifiqueString(actualContent,'inicial')) {
+    } else if (verifyString(actualContent,'inicial')) {
       text += actualContent;
       text += '                '
-    } else if (verifiqueString(actualContent,'final')) {
+    } else if (verifyString(actualContent,'final')) {
       invInicialFinal = true;
       text += actualContent;
       text += '\r\n \r\n';
@@ -758,7 +740,7 @@ function txtRetailSales(textContent){
         if(textContent.items[content + 1].str == ' '){
           content++;
           text += '\r\n \r\n';
-        } else if (verifiqueString(textContent.items[content + 2].str,'total')){
+        } else if (verifyString(textContent.items[content + 2].str,'total')){
           totalAppear = true;
           invInicialFinal = false;
         } else {
@@ -802,14 +784,14 @@ function txtRetailSales(textContent){
         caracteresLineaMax = caracteresLineaMax + actualContent.length;
       }
     } else if (totalAppear) {
-      if(verifiqueString(actualContent,'total:')){
+      if(verifyString(actualContent,'total:')){
         text += '\r\n \r\n';
         for(let spaces = 0 ; spaces < centerTotalsFinal-Math.round((actualContent.length+textContent.items[textContent.items.length-1].str.length)/2) ; spaces++) {
           text += ' ';
         }
         text += actualContent;
         text += ' ' + textContent.items[textContent.items.length-1].str;
-      } else if (verifiqueString(actualContent,'total')) {
+      } else if (verifyString(actualContent,'total')) {
         if (totalRepeats == 0){
           text += '\r\n \r\n';
           for (let spaces = 0 ; spaces < centerTotalsFinal-Math.round((actualContent.length+textContent.items[content+1].str.length+textContent.items[content+2].str.length+textContent.items[content+3].str.length+textContent.items[content+4].str.length)/2) ; spaces++) {
@@ -833,7 +815,7 @@ function txtRetailSales(textContent){
  * acomodar manualmente el orden y centralización de los elementos del
  * pdf
  * @param {String} textContent
- * @returns {text} String que tiene el formato del pdf cargado a imprimir en zebra
+ * @returns {String} String que tiene el formato del pdf cargado a imprimir en zebra
  */
 function txtPurchase(textContent) {
   let selectedPrinter = document.getElementById("printerSelect").value;
@@ -866,10 +848,10 @@ function txtPurchase(textContent) {
   const spaceProductsWithProm = 13;
   for (let content = 0 ; content < textContent.items.length-1 ; content++) {
     actualContent = textContent.items[content].str;
-    if (verifiqueString(actualContent,'ticket')){
+    if (verifyString(actualContent,'ticket')){
       text += '                  ';
       text += actualContent;
-    } else if (verifiqueString(actualContent,'cliente:')) {
+    } else if (verifyString(actualContent,'cliente:')) {
       text += '\r\n \r\n';
       text += actualContent;
       afterClient = true;
@@ -877,36 +859,36 @@ function txtPurchase(textContent) {
       text += '\r\n';
       text += actualContent;
       afterClient = false;
-    } else if (verifiqueString(actualContent,'dirección:')) {
+    } else if (verifyString(actualContent,'dirección:')) {
       text += '\r\n';
       text += actualContent;
-    } else if (verifiqueString(actualContent,'fecha')) {
+    } else if (verifyString(actualContent,'fecha')) {
       text += '\r\n';
       text += actualContent;
       caseBuyLine = false;
-    } else if (verifiqueString(actualContent,'orden')) {
+    } else if (verifyString(actualContent,'orden')) {
       text += '\r\n';
       text += actualContent;
-    } else if (verifiqueString(actualContent,'condición')) {
+    } else if (verifyString(actualContent,'condición')) {
       text += '\r\n';
       text += actualContent;
-    } else if (verifiqueString(actualContent,'elaboró:')) {
+    } else if (verifyString(actualContent,'elaboró:')) {
       text += '\r\n';
       text += actualContent;
-    } else if (verifiqueString(actualContent,'descripción')) {
+    } else if (verifyString(actualContent,'descripción')) {
       text += '\r\n';
       text += actualContent;
       text += '       ';
       productAppear = true;
-    } else if (verifiqueString(actualContent,'cant.')) {
+    } else if (verifyString(actualContent,'cant.')) {
       text += actualContent;
       text += ' '
-    } else if (verifiqueString(actualContent,'precio')) {
+    } else if (verifyString(actualContent,'precio')) {
       text += actualContent;
-    } else if (verifiqueString(actualContent,'unit.')) {
+    } else if (verifyString(actualContent,'unit.')) {
       text += actualContent;
       text += '   '
-    } else if (verifiqueString(actualContent,'total') && !totalAppear) {
+    } else if (verifyString(actualContent,'total') && !totalAppear) {
       if (totalAppearCount == 0) {
         text += actualContent;
         text += '\r\n \r\n';
@@ -919,7 +901,7 @@ function txtPurchase(textContent) {
         listProduct = true;
         totalAppearCount++;
       }
-    } else if (verifiqueString(actualContent,'sub-')) {
+    } else if (verifyString(actualContent,'sub-')) {
       listProduct = false;
       text += ' \r\n'
       for (let spaces = 0; spaces<centerPage-Math.round((actualContent.length+textContent.items[content+1].str.length+textContent.items[content+2].str.length+textContent.items[content+3].str.length+textContent.items[content+4].str.length+textContent.items[content+5].str.length)/2) ; spaces++){
@@ -927,27 +909,27 @@ function txtPurchase(textContent) {
       }
       text += actualContent;
       subTotal = true;
-    } else if (verifiqueString(actualContent,'descuento:')|| verifiqueString(actualContent,'impuesto:')) {
+    } else if (verifyString(actualContent,'descuento:')|| verifyString(actualContent,'impuesto:')) {
       text += '\r\n \r\n'
       for (let spaces = 0; spaces<centerPage-Math.round((actualContent.length+textContent.items[content+1].str.length+textContent.items[content+2].str.length+textContent.items[content+3].str.length+textContent.items[content+4].str.length)/2) ; spaces++){
         text += ' '
       }
       text += actualContent;
-    } else if (verifiqueString(actualContent,'total')  && verifiqueString(textContent.items[content-1].str,'sub-')) {
+    } else if (verifyString(actualContent,'total')  && verifyString(textContent.items[content-1].str,'sub-')) {
       text += actualContent;
-    } else if (verifiqueString(actualContent,'total:') && totalAppear) {
+    } else if (verifyString(actualContent,'total:') && totalAppear) {
       text += '\r\n \r\n'
       for (let spaces = 0; spaces<centerPage-Math.round((actualContent.length+textContent.items[content+1].str.length+textContent.items[content+2].str.length+textContent.items[content+3].str.length+textContent.items[content+4].str.length)/2) ; spaces++){
         text += ' '
       }
       text += actualContent;
-    } else if(verifiqueString(actualContent,'importe')) {
+    } else if(verifyString(actualContent,'importe')) {
       caracteresLineaMax = 0;
       text += '\r\n \r\n';
       text += actualContent;
       caracteresLineaMax = caracteresLineaMax + actualContent.length;
       importLine = true;
-    } else if(verifiqueString(actualContent,'***copia***')) {
+    } else if(verifyString(actualContent,'***copia***')) {
       text += '\r\n \r\n';
       for (let spaces = 0; spaces<centerPage-Math.round(actualContent.length/2) ; spaces++){
         text += ' '
@@ -978,13 +960,13 @@ function txtPurchase(textContent) {
       if (caracteresLineaMax < totalPage-1){
         if (actualContent == 'SU') {
           text += actualContent + ' ';
-        } else if (verifiqueString(actualContent,'compra.')) {
+        } else if (verifyString(actualContent,'compra.')) {
           text += actualContent + '\r\n';
           caracteresLineaMax = 0;
         } else {
           text += actualContent;
         }
-      } else if (verifiqueString(actualContent,'satisfacción.')) {
+      } else if (verifyString(actualContent,'satisfacción.')) {
         text += '\r\n' + actualContent + '\r\n';
         caracteresLineaMax = 0;
       } else {
@@ -995,14 +977,14 @@ function txtPurchase(textContent) {
         }
         caracteresLineaMax = caracteresLineaMax + actualContent.length;
       }
-    } else if (verifiqueString(actualContent,'productos') && countProducts == 0 ) {
+    } else if (verifyString(actualContent,'productos') && countProducts == 0 ) {
       text += '\r\n \r\n'
       for (let spaces = 0; spaces < spaceProductsWithoutProm ; spaces++){
         text += ' '
       }
       text += actualContent;
       countProducts++;
-    } else if (verifiqueString(actualContent,'productos') && countProducts == 1 ) {
+    } else if (verifyString(actualContent,'productos') && countProducts == 1 ) {
       text += '\r\n'
       for (let spaces = 0; spaces < spaceProductsWithProm ; spaces++){
         text += ' '
@@ -1010,7 +992,7 @@ function txtPurchase(textContent) {
       text += actualContent + ' ';
       listProduct = false;
       countProducts++;
-    } else if (verifiqueString(actualContent,'promocionales') && countProducts == 2 ) {
+    } else if (verifyString(actualContent,'promocionales') && countProducts == 2 ) {
       text += actualContent;
       countProducts++;
     } else if (listProduct) {
@@ -1095,7 +1077,7 @@ function txtPurchase(textContent) {
  * espaciamiento de las tablas. La variable 'line' indicara en que
  * linea del pdf se encuentra.
  * @param {textContent} textContent 
- * @returns 
+ * @returns {String}
  */
 function htmlInventaryReport(textContent) {
   let text = '<!DOCTYPE html>'
@@ -1188,7 +1170,7 @@ function htmlInventaryReport(textContent) {
  * espaciamiento de las tablas. La variable 'line' indicara en que
  * linea del pdf se encuentra.
  * @param {textContent} textContent 
- * @returns 
+ * @returns {String}
  */
 function htmlRetailSales(textContent) {
   let text = '<!DOCTYPE html>'
@@ -1261,7 +1243,7 @@ function htmlRetailSales(textContent) {
         text += actualContent;
       }
     } else if (line == 7){
-      if (verifiqueString(actualContent,'inicial')){
+      if (verifyString(actualContent,'inicial')){
           text += actualContent + '</td><td>';
       } else if (actualContentEnter) {
         text += actualContent + '</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td></tr></tbody></table><table style="font-size: 15px;font-weight: bold"><tbody>';
@@ -1277,7 +1259,7 @@ function htmlRetailSales(textContent) {
         if (count == 0) {
           text += actualContent;
           count = 1;
-        } else if (verifiqueString(textContent.items[content+1].str,'total') || verifiqueString(textContent.items[content+2].str,'total')) {
+        } else if (verifyString(textContent.items[content+1].str,'total') || verifyString(textContent.items[content+2].str,'total')) {
           text += actualContent + '</td></tr></tbody></table><p>&nbsp;</p><div align="center" style="font-size: 15px;font-weight: bold"><p>';
           line++;
           count = 0;
@@ -1325,7 +1307,7 @@ function htmlRetailSales(textContent) {
         }
       }
     } else if (line == 9 || line == 10 || line == 11 || line == 12) {
-      if (verifiqueString(textContent.items[content+1].str,'total')){
+      if (verifyString(textContent.items[content+1].str,'total')){
         text += actualContent + '</p><p>';
         line++;
       } else {
@@ -1343,7 +1325,7 @@ function htmlRetailSales(textContent) {
  * espaciamiento de las tablas. La variable 'line' indicara en que
  * linea del pdf se encuentra.
  * @param {textContent} textContent 
- * @returns 
+ * @returns {String}
  */
 function htmlPurchase(textContent) {
   let text = '<!DOCTYPE html>'
@@ -1418,7 +1400,7 @@ function htmlPurchase(textContent) {
         text += actualContent;
       } 
     } else if (line == 11 || line == 14){
-      if (actualContent == ' ' && verifiqueString(textContent.items[content+1].str,'unit')) {
+      if (actualContent == ' ' && verifyString(textContent.items[content+1].str,'unit')) {
         text += actualContent;
       } else if(actualContent == ' '){
         text += '</td><td>';
@@ -1442,12 +1424,12 @@ function htmlPurchase(textContent) {
         } else if (count == 2) {
           text += actualContent;
           count = 3;
-        } else if (verifiqueString(textContent.items[content+1].str,'productos') || verifiqueString(textContent.items[content+2].str,'productos')) {
+        } else if (verifyString(textContent.items[content+1].str,'productos') || verifyString(textContent.items[content+2].str,'productos')) {
           text += actualContent + '</td></tr></tbody></table><p>&nbsp;</p><div align="center" style="font-size: 15px;font-weight: bold"><p>';
           line++;
           count = 0;
           codeProductRead = 0;
-        } else if (verifiqueString(textContent.items[content+1].str,'sub') || verifiqueString(textContent.items[content+2].str,'sub')) {
+        } else if (verifyString(textContent.items[content+1].str,'sub') || verifyString(textContent.items[content+2].str,'sub')) {
           text += actualContent + '</td></tr></tbody></table><p>&nbsp;</p><div align="center" style="font-size: 15px;font-weight: bold"><p>';
           line++;
           count = 0;
@@ -1505,7 +1487,7 @@ function htmlPurchase(textContent) {
         text += actualContent;
       }
     } else if (line == 20) {
-      if (verifiqueString(textContent.items[content+1].str,'***')) {
+      if (verifyString(textContent.items[content+1].str,'***')) {
         text += '</p><div align="center" style="font-size: 15px;font-weight: bold"><p>';
         line++;
       } else if (textContent.items[content+1].str.length == 0) {
@@ -1517,7 +1499,7 @@ function htmlPurchase(textContent) {
       text += actualContent + '</p></div><p style="font-size: 15px;font-weight: bold">';
       line++;
     } else if (line == 22) {
-      if (verifiqueString(textContent.items[content+1].str,'fecha')) {
+      if (verifyString(textContent.items[content+1].str,'fecha')) {
         text += '</p><p style="font-size: 15px;font-weight: bold">';
         line++;
       } else if (actualContent.includes('.')) {
