@@ -1,7 +1,3 @@
-//pdfjsLib.GlobalWorkerOptions.workerSrc ='https://mozilla.github.io/pdf.js/build/pdf.worker.js';
-//pdfjsLib.GlobalWorkerOptions.workerSrc ='https://github.com/mozilla/pdfjs-dist';
-//import pdfJsLib from "https://example.com/nombreDeLaLibreria.js";
-// Loaded via <script> tag, create shortcut to access PDF.js exports.
 var { pdfjsLib } = globalThis;
 
 // The workerSrc property shall be specified.
@@ -16,7 +12,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
 /**********************SERVICE WORKER******************************/
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.47')
+    navigator.serviceWorker.register('./sw.js?version=2.48')
     .then(registration => {
       //alert('Service Worker registrado con éxito:', registration);
       console.log('Service Worker registrado con éxito:', registration);
@@ -26,7 +22,7 @@ function registerServiceWorker() {
       console.error('Error al registrar el Service Worker:', error);
     });
     //Recibe archivos compartidos fuera de la webapp
-    navigator.serviceWorker.addEventListener("message", (event) => {
+    navigator.serviceWorker.addEventListener('message', (event) => {
       const file = event.data.file;
       var dataTransfer = new DataTransfer();
       if (file.type === 'application/pdf') {
@@ -37,7 +33,7 @@ function registerServiceWorker() {
           fileBackup=archive;
           getPdf(createURL);
         });
-        alert("Archivo cargado correctamente");
+        alert('Archivo cargado correctamente');
       } else {
         alert('El archivo no es de tipo PDF, cargue un nuevo archivo');
       }
@@ -75,8 +71,8 @@ let selectorDevice = document.getElementById('selected_device');
 let devices = [];
 let storedDevices;
 let nIntervId;
-let statusTexts = ["Buscando dispositivos", "Buscando dispositivos.", "Buscando dispositivos..", "Buscando dispositivos..."];
-let contenedor = document.getElementById("contenedor");
+let statusTexts = ['Buscando dispositivos', 'Buscando dispositivos.', 'Buscando dispositivos..', 'Buscando dispositivos...'];
+let contenedor = document.getElementById('contenedor');
 let nuevoParrafo;
 let fileBackup;
 let changeHref;
@@ -103,28 +99,28 @@ const headerZebraImz220 = text = '! U1 JOURNAL \r\n! U1 SETLP 0 2 18 \r\n! UTILI
  */
 buttonPrint.addEventListener('click', function() {
   // Obtener el valor seleccionado en el elemento select
-  let selectedPrinter = document.getElementById("printerSelect").value;
+  let selectedPrinter = document.getElementById('printerSelect').value;
   // Realizar acciones según la opción seleccionada
   if (fileBackup && fileBackup.size > 0) {
     if (selectedPrinter === 'Zebra iMZ220' || selectedPrinter === 'Zebra ZQ220' ) {
       try{
-        alert("Imprimiendo en impresora zebra...");
+        alert('Imprimiendo en impresora zebra...');
         imprimirZebraTxt();
       }catch(error){
-        alert("¡Falla al imprimir! Revise la impresora y el tipo de impresora al que se encuentra conectado");
+        alert('¡Falla al imprimir! Revise la impresora y el tipo de impresora al que se encuentra conectado');
       }
-    } else if(selectedPrinter === "Star") {
+    } else if(selectedPrinter === 'Star') {
       try{
-        alert("Imprimiendo en impresora star...");
+        alert('Imprimiendo en impresora star...');
         imprimirStar();
       }catch(error){
-        alert("¡Falla al imprimir! Revise la impresora y el tipo de impresora al que se encuentra conectado");
+        alert('¡Falla al imprimir! Revise la impresora y el tipo de impresora al que se encuentra conectado');
       }
     } else {
-        alert("Selecciona una impresora válida (Zebra o Star).");
+        alert('Selecciona una impresora válida (Zebra o Star).');
     }
   } else {
-    alert("No hay un archivo cargado para imprimir");
+    alert('No hay un archivo cargado para imprimir');
   }
 });
 /**********************************************************************/
@@ -225,12 +221,11 @@ function searchPrinters(){
   // Deshabilito el boton de busqueda para que no hagan busquedas simultaneas
   reloadButton.disabled = true;
   const sPrinter = document.getElementById('printerSelect');
-  nuevoParrafo = document.getElementById("BuscandoDisp");
-  nuevoParrafo.textContent = "Buscando dispositivos";
+  nuevoParrafo = document.getElementById('BuscandoDisp');
+  nuevoParrafo.textContent = 'Buscando dispositivos';
   if (sPrinter.value != 'Star') {
     buttonPrint.textContent = 'Buscando';
   }
-  //document.body.appendChild(nuevoParrafo);
   nIntervId = setInterval(flashText, 1000);
   //Get the default device from the application as a first step. Discovery takes longer to complete.
   //Discover any other devices available to the application
@@ -243,7 +238,7 @@ function searchPrinters(){
       let deviceExists = devices.some(d => d.uid == device.uid);
       if (!deviceExists) {
         devices.push(device);
-        let option = document.createElement("option");
+        let option = document.createElement('option');
         option.text = device.name;
         option.value = device.uid;
         selectorDevice.add(option);
@@ -252,9 +247,9 @@ function searchPrinters(){
     clearInterval(nIntervId);
     if (device_list.length > 0) {
       dispFound = true;
-      nuevoParrafo.textContent = "Dispositivos encontrados"
+      nuevoParrafo.textContent = 'Dispositivos encontrados'
     } else {
-      nuevoParrafo.textContent = "No hay dispositivos conectados"
+      nuevoParrafo.textContent = 'No hay dispositivos conectados'
     }
     nIntervId = null;
     reloadValuePrinter(sPrinter);
@@ -263,12 +258,12 @@ function searchPrinters(){
   }, function(){
     clearInterval(nIntervId);
     nIntervId = null;
-    nuevoParrafo.textContent = "Error al buscar dispositivos"
+    nuevoParrafo.textContent = 'Error al buscar dispositivos'
     buttonPrint.textContent = 'Sin dispositivos para imprimir';
     reloadValuePrinter(sPrinter);
     // Vuelvo a habilitar el boton de busqueda
     reloadButton.disabled = false;
-  },"printer");
+  },'printer');
 }
 /***********************************************************************/
 
@@ -284,7 +279,7 @@ function inputFileLoad() {
           fileBackup=archive;
           getPdf(createURL);
         });
-        alert("Archivo cargado correctamente");
+        alert('Archivo cargado correctamente');
       } else {
         fileInput.value = '';
         alert('El archivo no es de tipo PDF, cargue uno nuevo');
@@ -297,7 +292,7 @@ function inputFileLoad() {
 
 /**
  * Combina todas las paginas del pdf en una sola pagina
- * @returns {Object} Archivo pdf generado de una sola pagina
+ * @returns {Promise<File>} Archivo pdf generado de una sola pagina
  */
 async function combineAllPDFPages() {
   const pdfBytes = await fetch(URL.createObjectURL(fileBackup)).then((res) => res.arrayBuffer());
@@ -319,7 +314,7 @@ async function combineAllPDFPages() {
   }
   const mergedPdfBytes = await pdfDoc.save();
   const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
-  return new File([blob], "file", { type: 'application/pdf' });
+  return new File([blob], 'file', { type: 'application/pdf' });
 }
 /**********************************************************************/
 
@@ -327,8 +322,8 @@ async function combineAllPDFPages() {
 /**
  * Crea un archivo txt del pdf que se le mande y es formateado segun el ticket
  * a imprimir
- * @param {Object} fileBackup - Archivo pdf con las paginas combinadas en una sola
- * @returns {String} String con el contenido parseado del pdf a txt 
+ * @param {File} fileBackup - Archivo pdf con las paginas combinadas en una sola
+ * @returns {Promise<String>} Promise que se resuelve en un string con el contenido parseado del pdf a txt 
  */
 async function createTxtFromPdf(fileBackup) {
   const pageNum = 1;
@@ -385,14 +380,14 @@ async function imprimirZebraTxt() {
  * Es un proceso que se muestra cuando la impresión finaliza
  */
 var finishCallback = function(){
-	alert("Proceso finalizado");	
+	alert('Proceso finalizado');	
 }
 
 /**
  * Función que arroja un error en caso de que la impresora zebra falle
  */
 var errorCallback = function(errorMessage){
-	alert("Error: " + errorMessage);	
+	alert('Error: ' + errorMessage);	
 }
 
 /**
@@ -403,14 +398,15 @@ async function descargarZebraTxt() {
   const url = window.URL.createObjectURL(txtArchive);
   const a = document.createElement('a');
   a.href = url;
-  a.download = "fileUnifiedBackup";
+  a.download = 'fileUnifiedBackup';
   a.click();
   window.URL.revokeObjectURL(url);
 }
 
 /**
  * Crea un archivo con el pdf parseado para la zebra
- * @returns {Object} Archivo generado en utf-16le
+ * @throws
+ * @returns {Promise<Blob>} Archivo generado en utf-16le
  */
 async function createTxtUtf16le() {
   try {
@@ -426,7 +422,7 @@ async function createTxtUtf16le() {
 
 /**
  * Pasa el txt parseado de utf-8 a utf-16le (para el uso de acentos)
- * @returns {bytes} El contenido de txt parseado del pdf, pasado a utf-16le
+ * @returns {Uint8Array} El contenido de txt parseado del pdf, pasado a utf-16le
  */
 function utf16le(text) {
   const bytes = new Uint8Array(text.length * 2);
@@ -451,15 +447,9 @@ function utf16le(text) {
  */
 function createURL() {
   	changeHref = 'starpassprnt://v1/print/nopreview?';
-    //back
-  	changeHref = changeHref + "&back=" + encodeURIComponent(window.location.href);
-    //size
-    changeHref = changeHref + "&size=" + "2w7";
-    //pdf
-  	// changeHref = changeHref + "&pdf=" + encodeURIComponent(pdfText)
-    changeHref = changeHref + "&html=" + encodeURIComponent(pdfText)
-    // console.log("****")
-    console.log(changeHref)
+  	changeHref = changeHref + '&back=' + encodeURIComponent(window.location.href);
+    changeHref = changeHref + '&size=' + '2w7';
+    changeHref = changeHref + '&html=' + encodeURIComponent(pdfText)
 }
 
 /**
@@ -483,7 +473,7 @@ function imprimirStar(){
 /**
  * Usa el pdf cargado y lo parsea a un html que sera usado mas adelante para
  * imprimir en un ticket desde la impresora star
- * @returns {String} String del pdf que fue parseado a html
+ * @returns {Promise<String>} Promise que se resuelve en un string del pdf que fue parseado a html
  */
 async function createHtmlFromPdf() {
   const pageNum = 1;
@@ -535,7 +525,7 @@ async function downloadHtml() {
   const url = window.URL.createObjectURL(txtArchive);
   const a = document.createElement('a');
   a.href = url;
-  a.download = "fileUnifiedBackup";
+  a.download = 'fileUnifiedBackup';
   a.click();
   window.URL.revokeObjectURL(url);
 }
@@ -543,7 +533,7 @@ async function downloadHtml() {
 /**
  * A partir del contenido html generado por el pdf, se crea un archivo
  * html para descargar
- * @returns {Object} Archivo html creado en un texto plano
+ * @returns {Promise <Blob>} Archivo html creado en un texto plano
  */
 async function createHtmlToDownload(){
   const txt = await createHtmlFromPdf(fileBackup);
@@ -574,14 +564,14 @@ function verifyString(actualContent, stringToVerifique){
  * @returns {String} String que tiene el formato del pdf cargado a imprimir en zebra 
  */
 function txtInventaryReport(textContent){
-  let selectedPrinter = document.getElementById("printerSelect").value;
+  let selectedPrinter = document.getElementById('printerSelect').value;
   let text = '';
   //Segun el modelo de impresora zebra, si es iMZ220 pone encabezado linePrint
   //en otro caso, no pone ninguna configuración
-  if (selectedPrinter === "Zebra iMZ220") {
+  if (selectedPrinter === 'Zebra iMZ220') {
     text = headerZebraImz220;
     text += '           ';
-  } else if (selectedPrinter === "Zebra ZQ220") {
+  } else if (selectedPrinter === 'Zebra ZQ220') {
     text = '           ';
   }
   let caracteresLineaMax = 0;
@@ -669,14 +659,14 @@ function txtInventaryReport(textContent){
  * @returns {String} String que tiene el formato del pdf cargado a imprimir en zebra
  */
 function txtRetailSales(textContent){
-  let selectedPrinter = document.getElementById("printerSelect").value;
+  let selectedPrinter = document.getElementById('printerSelect').value;
   let text = '';
   //Segun el modelo de impresora zebra, si es iMZ220 pone encabezado linePrint
   //en otro caso, no pone ninguna configuración
-  if (selectedPrinter === "Zebra iMZ220") {
+  if (selectedPrinter === 'Zebra iMZ220') {
     text = headerZebraImz220;
     text += '                ';
-  } else if (selectedPrinter === "Zebra ZQ220") {
+  } else if (selectedPrinter === 'Zebra ZQ220') {
     text = '                ';
   }
   let caracteresLineaMax = 0;
@@ -818,14 +808,14 @@ function txtRetailSales(textContent){
  * @returns {String} String que tiene el formato del pdf cargado a imprimir en zebra
  */
 function txtPurchase(textContent) {
-  let selectedPrinter = document.getElementById("printerSelect").value;
+  let selectedPrinter = document.getElementById('printerSelect').value;
   let text = '';
   //Segun el modelo de impresora zebra, si es iMZ220 pone encabezado linePrint
   //en otro caso, no pone ninguna configuración
-  if (selectedPrinter === "Zebra iMZ220") {
+  if (selectedPrinter === 'Zebra iMZ220') {
     text = headerZebraImz220;
     text += '                ';
-  } else if (selectedPrinter === "Zebra ZQ220") {
+  } else if (selectedPrinter === 'Zebra ZQ220') {
     text = '                ';
   }
   let actualContent;
@@ -1076,7 +1066,7 @@ function txtPurchase(textContent) {
  * NOTA: El encabezado del html en 'style' tiene la acomodación y
  * espaciamiento de las tablas. La variable 'line' indicara en que
  * linea del pdf se encuentra.
- * @param {textContent} textContent 
+ * @param {String} textContent 
  * @returns {String}
  */
 function htmlInventaryReport(textContent) {
@@ -1169,7 +1159,7 @@ function htmlInventaryReport(textContent) {
  * NOTA: El encabezado del html en 'style' tiene la acomodación y
  * espaciamiento de las tablas. La variable 'line' indicara en que
  * linea del pdf se encuentra.
- * @param {textContent} textContent 
+ * @param {String} textContent 
  * @returns {String}
  */
 function htmlRetailSales(textContent) {
@@ -1324,7 +1314,7 @@ function htmlRetailSales(textContent) {
  * NOTA: El encabezado del html en 'style' tiene la acomodación y
  * espaciamiento de las tablas. La variable 'line' indicara en que
  * linea del pdf se encuentra.
- * @param {textContent} textContent 
+ * @param {String} textContent 
  * @returns {String}
  */
 function htmlPurchase(textContent) {
