@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
  */
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.50')
+    navigator.serviceWorker.register('./sw.js?version=2.51')
     .then(registration => {
       console.log('Service Worker registrado con éxito:', registration);
     })
