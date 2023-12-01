@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
  */
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.51')
+    navigator.serviceWorker.register('./sw.js?version=2.52')
     .then(registration => {
       console.log('Service Worker registrado con éxito:', registration);
     })
@@ -584,7 +584,7 @@ function txtInventaryReport(textContent){
   //en otro caso, no pone ninguna configuración
   if (selectedPrinter === 'Zebra iMZ220') {
     text = headerZebraImz220;
-    text += '           ';
+    text += '\r\n           ';
   } else if (selectedPrinter === 'Zebra ZQ220') {
     text = '           ';
   }
