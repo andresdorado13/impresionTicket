@@ -10,15 +10,17 @@ var { pdfjsLib } = globalThis;
 pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
 
 /**********************SERVICE WORKER******************************/
+/**
+ * Se hace registro del serviceWorker y manejo de eventos para contener
+ * un archivo
+ */
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.48')
+    navigator.serviceWorker.register('./sw.js?version=2.49')
     .then(registration => {
-      //alert('Service Worker registrado con éxito:', registration);
       console.log('Service Worker registrado con éxito:', registration);
     })
     .catch(error => {
-      //alert('Error al registrar el Service Worker:', error);
       console.error('Error al registrar el Service Worker:', error);
     });
     //Recibe archivos compartidos fuera de la webapp
@@ -43,6 +45,12 @@ function registerServiceWorker() {
 /**********************************************************************/
 
 /**************************LOAD DEL PROGRAMA***************************/
+/**
+ * La función onLoad ejecuta el bloque de código que esta ahi después
+ * de que todo el contenido de la página web ha sido cargado.
+ * Este evento se dispara cuando todos los recursos de la página se han 
+ * descargado y renderizado completamente.
+ */
 window.addEventListener('load', () => {
   registerServiceWorker()
   const sPrinter = document.getElementById('printerSelect');
@@ -59,8 +67,8 @@ window.addEventListener('load', () => {
   }
   searchPrinters()
   fileInput = document.getElementById('fileInput');
-  inputFileLoad()
-  createURL()
+  inputFileLoad();
+  createURL();
 });
 /***********************************************************************/
 
@@ -268,7 +276,13 @@ function searchPrinters(){
 /***********************************************************************/
 
 /***********************FUNCIONES PARA INPUT FILE**********************/
-// Agrega un event listener al input file para el evento 'change'
+/**
+ * Esta función al momento de que se cargue un archivo en el file input
+ * verifica que sea un pdf, en caso de serlo, se guarda en una variable
+ * donde sera manejada para combinarse sus paginas en una sola con la
+ * función combineAllPDFPages y se crea una URL que se usaria para la
+ * impresión en la impresora star.
+ */
 function inputFileLoad() {
   fileInput.addEventListener('change', function() {
     let file = fileInput.files[0]; // Obtener el archivo seleccionado
@@ -449,7 +463,7 @@ function createURL() {
   	changeHref = 'starpassprnt://v1/print/nopreview?';
   	changeHref = changeHref + '&back=' + encodeURIComponent(window.location.href);
     changeHref = changeHref + '&size=' + '2w7';
-    changeHref = changeHref + '&html=' + encodeURIComponent(pdfText)
+    changeHref = changeHref + '&html=' + encodeURIComponent(pdfText);
 }
 
 /**
@@ -551,7 +565,7 @@ async function createHtmlToDownload(){
  * @returns {Boolean} Retorna si ambas cadenas son iguales o no  
  */
 function verifyString(actualContent, stringToVerifique){
-   return actualContent.toLowerCase().includes(stringToVerifique)
+   return actualContent.toLowerCase().includes(stringToVerifique);
 }
 
 /***************FORMATEO PARA IMPRESORA ZEBRA EN TXT******************/
@@ -593,7 +607,7 @@ function txtInventaryReport(textContent){
     } else if (actualContent.includes('PRODUCTO')) {
       text += '\r\n \r\n';
       text += actualContent;
-      text += '                            '
+      text += '                            ';
     } else if (verifyString(actualContent,'existencias')) {
       arriveDescription = true;
       text += actualContent;
@@ -699,7 +713,7 @@ function txtRetailSales(textContent){
     } else if (verifyString(actualContent,'producto') && !productAppear) {
       text += '\r\n \r\n';
       text += actualContent;
-      text += '                     '
+      text += '                     ';
       productAppear = true;
     } else if (verifyString(actualContent,'cantidad')) {
       text += actualContent;
@@ -712,7 +726,7 @@ function txtRetailSales(textContent){
       countInv++;
     } else if (verifyString(actualContent,'inicial')) {
       text += actualContent;
-      text += '                '
+      text += '                ';
     } else if (verifyString(actualContent,'final')) {
       invInicialFinal = true;
       text += actualContent;
@@ -872,12 +886,12 @@ function txtPurchase(textContent) {
       productAppear = true;
     } else if (verifyString(actualContent,'cant.')) {
       text += actualContent;
-      text += ' '
+      text += ' ';
     } else if (verifyString(actualContent,'precio')) {
       text += actualContent;
     } else if (verifyString(actualContent,'unit.')) {
       text += actualContent;
-      text += '   '
+      text += '   ';
     } else if (verifyString(actualContent,'total') && !totalAppear) {
       if (totalAppearCount == 0) {
         text += actualContent;
@@ -893,24 +907,24 @@ function txtPurchase(textContent) {
       }
     } else if (verifyString(actualContent,'sub-')) {
       listProduct = false;
-      text += ' \r\n'
+      text += ' \r\n';
       for (let spaces = 0; spaces<centerPage-Math.round((actualContent.length+textContent.items[content+1].str.length+textContent.items[content+2].str.length+textContent.items[content+3].str.length+textContent.items[content+4].str.length+textContent.items[content+5].str.length)/2) ; spaces++){
-        text += ' '
+        text += ' ';
       }
       text += actualContent;
       subTotal = true;
     } else if (verifyString(actualContent,'descuento:')|| verifyString(actualContent,'impuesto:')) {
-      text += '\r\n \r\n'
+      text += '\r\n \r\n';
       for (let spaces = 0; spaces<centerPage-Math.round((actualContent.length+textContent.items[content+1].str.length+textContent.items[content+2].str.length+textContent.items[content+3].str.length+textContent.items[content+4].str.length)/2) ; spaces++){
-        text += ' '
+        text += ' ';
       }
       text += actualContent;
     } else if (verifyString(actualContent,'total')  && verifyString(textContent.items[content-1].str,'sub-')) {
       text += actualContent;
     } else if (verifyString(actualContent,'total:') && totalAppear) {
-      text += '\r\n \r\n'
+      text += '\r\n \r\n';
       for (let spaces = 0; spaces<centerPage-Math.round((actualContent.length+textContent.items[content+1].str.length+textContent.items[content+2].str.length+textContent.items[content+3].str.length+textContent.items[content+4].str.length)/2) ; spaces++){
-        text += ' '
+        text += ' ';
       }
       text += actualContent;
     } else if(verifyString(actualContent,'importe')) {
@@ -922,7 +936,7 @@ function txtPurchase(textContent) {
     } else if(verifyString(actualContent,'***copia***')) {
       text += '\r\n \r\n';
       for (let spaces = 0; spaces<centerPage-Math.round(actualContent.length/2) ; spaces++){
-        text += ' '
+        text += ' ';
       }
       text += actualContent;
       text += '\r\n \r\n';
@@ -968,16 +982,16 @@ function txtPurchase(textContent) {
         caracteresLineaMax = caracteresLineaMax + actualContent.length;
       }
     } else if (verifyString(actualContent,'productos') && countProducts == 0 ) {
-      text += '\r\n \r\n'
+      text += '\r\n \r\n';
       for (let spaces = 0; spaces < spaceProductsWithoutProm ; spaces++){
-        text += ' '
+        text += ' ';
       }
       text += actualContent;
       countProducts++;
     } else if (verifyString(actualContent,'productos') && countProducts == 1 ) {
-      text += '\r\n'
+      text += '\r\n';
       for (let spaces = 0; spaces < spaceProductsWithProm ; spaces++){
-        text += ' '
+        text += ' ';
       }
       text += actualContent + ' ';
       listProduct = false;
@@ -1093,7 +1107,6 @@ function htmlInventaryReport(textContent) {
   + '<p>';
   let actualContent;
   let codeProductRead = 0;
-  let count = 0;
   let line = 1;
   for (let content = 0 ; content < textContent.items.length-2 ; content++) {
     actualContent = textContent.items[content].str;

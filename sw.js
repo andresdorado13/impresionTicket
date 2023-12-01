@@ -4,7 +4,7 @@ const urlsToCache = [
   './index.html',
   './manifest.json',
   'css/style.css',
-  'js/main.js?version=3.95',
+  'js/main.js?version=3.96',
   'lib/BrowserPrint-3.1.250.min.js',
   'lib/BrowserPrint-Zebra-1.1.250.min.js',
   'lib/pdf-lib.js',
@@ -46,12 +46,10 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  
   // URL en la que vive el SW
   let scriptURL = self.location.href;
   // Obtener la URL base eliminando la parte específica del servicio
   let baseURL = scriptURL.split('/').slice(0, -1).join('/');
-
   if(event.request.method === 'GET'){
     console.log("fetch get!", event.request);
     event.respondWith(
@@ -77,48 +75,3 @@ self.addEventListener('fetch', (event) => {
     }());
   }
 });
-
-/*self.addEventListener('install', () => {
-  skipWaiting();
-});
-
-self.addEventListener('activate', () => {
-  clients.claim();
-});
-
-
-// Intercepta las solicitudes y responde desde la caché si está disponible
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'POST') return;
-  
-  event.respondWith(Response.redirect('./'));
-  
-  event.waitUntil(async function () {
-    const data = await event.request.formData();
-    const clientId =
-        event.resultingClientId !== ""
-          ? event.resultingClientId
-          : event.clientId;
-    console.log(clientId)
-    if (!clientId) return;
-    const client = await self.clients.get(clientId);
-    if(!client) return
-    const file = data.get('file');
-    client.postMessage({ file });
-  }());
-});*/
-
-
-
-/*addEventListener('fetch', (event) => {
-  if (event.request.method !== 'POST') return;
-  
-  event.respondWith(Response.redirect('./'));
-  
-  event.waitUntil(async function () {
-    const data = await event.request.formData();
-    const client = await self.clients.get(event.resultingClientId);
-    const file = data.get('file');
-    client.postMessage({ file });
-  }());
-});*/
