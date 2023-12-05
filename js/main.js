@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
  */
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.52')
+    navigator.serviceWorker.register('./sw.js?version=2.53')
     .then(registration => {
       console.log('Service Worker registrado con éxito:', registration);
     })
@@ -1415,8 +1415,13 @@ function htmlPurchase(textContent) {
       }
     } else if (line == 12 || line == 15){
       if (codeProductRead == 0 && actualContent != '' && actualContent != ' ') { //Se el primer item del producto
-        codeProductRead = 1;
-        text += '<tr><td>' + actualContent;
+        if (verifyString(actualContent, 'sub') || verifyString(textContent.items[content+1].str, 'sub') || verifyString(actualContent, 'productos') || verifyString(textContent.items[content+1].str, 'productos')) {
+          text += '</tbody></table><p>&nbsp;</p><div align="center" style="font-size: 15px;font-weight: bold"><p>';
+          line++;
+        } else {
+          codeProductRead = 1;
+          text += '<tr><td>' + actualContent; 
+        }
       } else if (codeProductRead == 4){
         if (count == 0) {
           text += actualContent;

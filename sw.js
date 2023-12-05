@@ -4,7 +4,7 @@ const urlsToCache = [
   './index.html',
   './manifest.json',
   'css/style.css',
-  'js/main.js?version=3.99',
+  'js/main.js?version=4.0',
   'lib/BrowserPrint-3.1.250.min.js',
   'lib/BrowserPrint-Zebra-1.1.250.min.js',
   'lib/pdf-lib.js',
