@@ -16,7 +16,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = './lib/pdfWorker.js';
  */
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?version=2.53')
+    navigator.serviceWorker.register('./sw.js?version=2.54')
     .then(registration => {
       console.log('Service Worker registrado con éxito:', registration);
     })
@@ -373,9 +373,6 @@ async function createTxtFromPdf(fileBackup) {
             break;
           }
         }
-        if (pageNum === numPages) {
-          resolve(text);
-        }
       });
     };
     fileReader.readAsArrayBuffer(fileBackup);
@@ -521,9 +518,6 @@ async function createHtmlFromPdf() {
             resolve(text);
             break;
           }
-        }
-        if (pageNum === numPages) {
-          resolve(text);
         }
       });
     };
@@ -1416,7 +1410,7 @@ function htmlPurchase(textContent) {
     } else if (line == 12 || line == 15){
       if (codeProductRead == 0 && actualContent != '' && actualContent != ' ') { //Se el primer item del producto
         if (verifyString(actualContent, 'sub') || verifyString(textContent.items[content+1].str, 'sub') || verifyString(actualContent, 'productos') || verifyString(textContent.items[content+1].str, 'productos')) {
-          text += '</tbody></table><p>&nbsp;</p><div align="center" style="font-size: 15px;font-weight: bold"><p>';
+          text += '</tbody></table><p>&nbsp;</p><div align="center" style="font-size: 15px;font-weight: bold"><p>' + actualContent;
           line++;
         } else {
           codeProductRead = 1;
